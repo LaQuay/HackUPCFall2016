@@ -226,9 +226,6 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     private void addFlightsToLayout() {
         for (int i = 0; i < filteredFlightQuoteArray.size(); ++i) {
             FlightQuote flightQuote = filteredFlightQuoteArray.get(i);
-            Toast.makeText(getActivity(), "Price: " + flightQuote.getMinPrice() +
-                    " from " + flightQuote.getInboundLeg().getOrigin().getCode() +
-                    " to " + flightQuote.getInboundLeg().getDestination().getCode(), Toast.LENGTH_SHORT).show();
 
             View flightItemView = inflater.inflate(R.layout.flight_item_view, null);
             TextView locationView = (TextView) flightItemView.findViewById(R.id.flight_item_destination_text);
@@ -239,7 +236,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             locationView.setText(flightQuote.getInboundLeg().getDestination().getCity());
             airportView.setText(flightQuote.getInboundLeg().getDestination().getName());
 
-            dateView.setText(DateFormat.format("dd/MM/YYYY", flightQuote.getInboundLeg().getDate()).toString());
+            dateView.setText(DateFormat.format("dd/MM/yyyy", flightQuote.getInboundLeg().getDate()).toString());
             priceView.setText(flightQuote.getMinPrice() + " €");
 
             flightsHolderLayout.addView(flightItemView);
@@ -276,7 +273,6 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     private ArrayList<FlightQuote> filterFlights16Days(ArrayList<FlightQuote> flightQuotes) {
         ArrayList<FlightQuote> filteredArray = new ArrayList<>();
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
         Date today = new Date();
         for (int i = 0; i < flightQuotes.size(); ++i) {
             Date flightDate = flightQuotes.get(i).getInboundLeg().getDate();
@@ -339,13 +335,13 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     private void addMarkerUser(LatLng latLng) {
         mMap.addMarker(new MarkerOptions()
                 .position(latLng)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.navigation_blue_icon)));
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.map_user_marker)));
     }
 
     private void addMarkerAirport(LatLng latLng) {
         mMap.addMarker(new MarkerOptions()
                 .position(latLng)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.common_full_open_on_phone)));
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.map_airport_marker)));
     }
 
     private void animateCamera(LatLng latLng) {
