@@ -1,5 +1,7 @@
 package dev.roviloapps.hackupcfall2016;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.location.Location;
 import android.os.Bundle;
@@ -15,6 +17,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,6 +45,7 @@ import dev.roviloapps.hackupcfall2016.model.Airport;
 import dev.roviloapps.hackupcfall2016.model.FlightQuote;
 import dev.roviloapps.hackupcfall2016.model.Forecast;
 import dev.roviloapps.hackupcfall2016.utility.MathUtils;
+import dev.roviloapps.hackupcfall2016.utility.SharedPreferencesManager;
 
 public class MainFragmentActivity extends Fragment implements FlightsController.FlightsRequestResolvedCallback, ForecastController.ForecastResolvedCallback, OnMapReadyCallback, LocationController.OnNewLocationCallback {
     private static final String TAG = MainFragmentActivity.class.getSimpleName();
@@ -59,7 +63,14 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             new LatLng(40.3, 0.2),
             new LatLng(42.5, 3.4));
     private CardView currentPositionCardView;
+    private CardView settingsButtonCardView;
+    private CardView settingsLayoutCardView;
     private LinearLayout flightsHolderLayout;
+    private CheckBox sunCheckbox;
+    private CheckBox rainCheckbox;
+    private CheckBox snowCheckbox;
+    private CheckBox hotCheckbox;
+    private CheckBox coldCheckbox;
     private FlightsController flightsController;
     private ForecastController forecastController;
     private int MAX_FLIGHTS = 3;
@@ -67,6 +78,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     private ArrayList<FlightQuote> flightQuoteArray;
     private ArrayList<FlightQuote> filteredFlightQuoteArray;
     private boolean isCurrentPositionActivated;
+    private boolean isSettingsActivated;
 
     private int weatherCondition = Forecast.WEAtHER_CLEAR;
     private int temperatureScale = -1;//Forecast.TEMP_HIGH;
@@ -100,9 +112,12 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         setUpElements();
         setUpListeners();
 
+        loadCheckBox();
+
         flightsController = new FlightsController(getActivity());
         forecastController = new ForecastController(getActivity());
         isCurrentPositionActivated = false;
+        isSettingsActivated = false;
 
         mapView.onCreate(savedInstanceState);
         mapView.onResume();
@@ -160,6 +175,14 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         flightsHolderLayout = (LinearLayout) rootView.findViewById(R.id.fragment_main_container_flights);
 
         currentPositionCardView = (CardView) rootView.findViewById(R.id.fragment_main_current_position_cardview);
+        settingsButtonCardView = (CardView) rootView.findViewById(R.id.fragment_main_settings_button_cardview);
+        settingsLayoutCardView = (CardView) rootView.findViewById(R.id.fragment_main_settings_layout_cardview);
+
+        sunCheckbox = (CheckBox) rootView.findViewById(R.id.fragment_main_sun_checkbox);
+        rainCheckbox = (CheckBox) rootView.findViewById(R.id.fragment_main_rain_checkbox);
+        snowCheckbox = (CheckBox) rootView.findViewById(R.id.fragment_main_snow_checkbox);
+        hotCheckbox = (CheckBox) rootView.findViewById(R.id.fragment_main_hot_checkbox);
+        coldCheckbox = (CheckBox) rootView.findViewById(R.id.fragment_main_cold_checkbox);
     }
 
     private void setUpListeners() {
@@ -178,6 +201,84 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
                 }
             }
         });
+
+        settingsButtonCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isSettingsActivated) {
+                    settingsLayoutCardView.animate()
+                            .translationY(0).alpha(0.0f)
+                            .setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    super.onAnimationEnd(animation);
+                                    settingsLayoutCardView.setVisibility(View.GONE);
+                                }
+                            });
+                } else {
+                    settingsLayoutCardView.animate()
+                            .translationY(0).alpha(1.0f)
+                            .setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationStart(Animator animation) {
+                                    super.onAnimationStart(animation);
+                                    settingsLayoutCardView.setVisibility(View.VISIBLE);
+                                    settingsLayoutCardView.setAlpha(0.0f);
+                                }
+                            });
+                }
+                isSettingsActivated = !isSettingsActivated;
+            }
+        });
+
+        sunCheckbox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferencesManager.setBooleanValue(getContext(),
+                        SharedPreferencesManager.CHECKBOX_SUN_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX,
+                        sunCheckbox.isChecked());
+            }
+        });
+        rainCheckbox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferencesManager.setBooleanValue(getContext(),
+                        SharedPreferencesManager.CHECKBOX_RAIN_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX,
+                        rainCheckbox.isChecked());
+            }
+        });
+        snowCheckbox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferencesManager.setBooleanValue(getContext(),
+                        SharedPreferencesManager.CHECKBOX_SNOW_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX,
+                        snowCheckbox.isChecked());
+            }
+        });
+        hotCheckbox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferencesManager.setBooleanValue(getContext(),
+                        SharedPreferencesManager.CHECKBOX_HOT_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX,
+                        hotCheckbox.isChecked());
+            }
+        });
+        coldCheckbox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferencesManager.setBooleanValue(getContext(),
+                        SharedPreferencesManager.CHECKBOX_COLD_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX,
+                        coldCheckbox.isChecked());
+            }
+        });
+    }
+
+    private void loadCheckBox() {
+        sunCheckbox.setChecked(SharedPreferencesManager.getBooleanValue(getContext(), SharedPreferencesManager.CHECKBOX_SUN_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX, true));
+        rainCheckbox.setChecked(SharedPreferencesManager.getBooleanValue(getContext(), SharedPreferencesManager.CHECKBOX_RAIN_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX, true));
+        snowCheckbox.setChecked(SharedPreferencesManager.getBooleanValue(getContext(), SharedPreferencesManager.CHECKBOX_SNOW_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX, true));
+        hotCheckbox.setChecked(SharedPreferencesManager.getBooleanValue(getContext(), SharedPreferencesManager.CHECKBOX_HOT_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX, true));
+        coldCheckbox.setChecked(SharedPreferencesManager.getBooleanValue(getContext(), SharedPreferencesManager.CHECKBOX_COLD_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX, true));
     }
 
     @Override
@@ -233,6 +334,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     }
 
     private void addFlightsToLayout() {
+        flightsHolderLayout.removeAllViews();
         for (int i = 0; i < filteredFlightQuoteArray.size(); ++i) {
             FlightQuote flightQuote = filteredFlightQuoteArray.get(i);
 
@@ -294,9 +396,9 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     }
 
     private boolean flightSatisfyFilters(Forecast forecast) {
-        if (temperatureScale != -1 && forecast.getTemperatureScale() != temperatureScale) return false;
-        if (weatherCondition != -1 && forecast.getWeatherCondition() != weatherCondition) return false;
-        return true;
+        if (temperatureScale != -1 && forecast.getTemperatureScale() != temperatureScale)
+            return false;
+        return !(weatherCondition != -1 && forecast.getWeatherCondition() != weatherCondition);
     }
 
     @Override

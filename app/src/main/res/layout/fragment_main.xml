@@ -49,10 +49,28 @@
     <android.support.v7.widget.CardView
         android:id="@+id/fragment_main_current_position_cardview"
         android:layout_width="35dp"
-        android:layout_height="wrap_content"
+        android:layout_height="35dp"
+        android:layout_alignBottom="@+id/origin_cv"
+        android:layout_alignEnd="@+id/fragment_main_settings_button_cardview"
+        android:layout_marginEnd="40dp"
+        android:layout_marginStart="0dp"
+        card_view:cardCornerRadius="2dp"
+        card_view:contentPadding="2dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:padding="4dp"
+            android:src="@drawable/ic_crosshairs_gps_grey600_18dp" />
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/fragment_main_settings_button_cardview"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:layout_alignBottom="@+id/origin_cv"
         android:layout_alignParentEnd="true"
-        android:layout_alignTop="@+id/origin_cv"
         android:layout_marginEnd="7dp"
         android:layout_marginStart="0dp"
         card_view:cardCornerRadius="2dp"
@@ -62,20 +80,92 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
-            android:src="@drawable/ic_crosshairs_gps_grey600_18dp" />
+            android:padding="4dp"
+            android:src="@drawable/ic_settings_grey600_24dp" />
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/fragment_main_settings_layout_cardview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/fragment_main_current_position_cardview"
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="18dp"
+        card_view:cardCornerRadius="2dp"
+        card_view:contentPadding="2dp">
+
+        <LinearLayout
+            android:id="@+id/fragment_main_linear_options"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/fragment_main_sun_checkbox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Sun" />
+
+                <CheckBox
+                    android:id="@+id/fragment_main_rain_checkbox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Rain" />
+
+                <CheckBox
+                    android:id="@+id/fragment_main_snow_checkbox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Snow" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/fragment_main_hot_checkbox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Hot" />
+
+                <CheckBox
+                    android:id="@+id/fragment_main_cold_checkbox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Cold" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+            </LinearLayout>
+        </LinearLayout>
     </android.support.v7.widget.CardView>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/fragment_main_current_position_cardview"
-        android:layout_marginTop="20dp">
+        android:layout_below="@+id/fragment_main_settings_layout_cardview"
+        android:layout_marginTop="10dp">
 
         <LinearLayout
             android:id="@+id/fragment_main_container_flights"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"></LinearLayout>
+            android:orientation="vertical" />
     </ScrollView>
 </RelativeLayout>
