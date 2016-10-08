@@ -9,9 +9,9 @@ public class Forecast {
     private double temperatureMax;
 
     private int temperatureScale;
-    private static int TEMP_HIGH = 0;
-    private static int TEMP_MEDIUM = 1;
-    private static int TEMP_LOW = 2;
+    public static int TEMP_HIGH = 0;
+    public static int TEMP_MEDIUM = 1;
+    public static int TEMP_LOW = 2;
 
     public Forecast() {
     }
@@ -55,7 +55,7 @@ public class Forecast {
     public void setTemperatureScale() {
         int scale = TEMP_MEDIUM;
         if (temperature > 27) scale = TEMP_HIGH;
-        else if (temperature < 10) scale = TEMP_LOW;
+        else if (temperature < 15) scale = TEMP_LOW;
 
         this.temperatureScale = scale;
     }

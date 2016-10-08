@@ -13,6 +13,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -24,16 +25,21 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import dev.roviloapps.hackupcfall2016.controllers.AirportController;
+import dev.roviloapps.hackupcfall2016.controllers.FlightsController;
 import dev.roviloapps.hackupcfall2016.controllers.ForecastController;
 import dev.roviloapps.hackupcfall2016.controllers.LocationController;
 import dev.roviloapps.hackupcfall2016.model.Airport;
+import dev.roviloapps.hackupcfall2016.model.FlightQuote;
 import dev.roviloapps.hackupcfall2016.model.Forecast;
 import dev.roviloapps.hackupcfall2016.utility.MathUtils;
 
-public class MainFragmentActivity extends Fragment implements ForecastController.ForecastResolvedCallback, OnMapReadyCallback, LocationController.OnNewLocationCallback {
+public class MainFragmentActivity extends Fragment implements FlightsController.FlightsRequestResolvedCallback, ForecastController.ForecastResolvedCallback, OnMapReadyCallback, LocationController.OnNewLocationCallback {
     private static final String TAG = MainFragmentActivity.class.getSimpleName();
     private static final int DEFAULT_ZOOM = 13;
     private static final int DEFAULT_NO_LOCATION_ZOOM = 10;
@@ -46,6 +52,15 @@ public class MainFragmentActivity extends Fragment implements ForecastController
             new LatLng(40.3, 0.2),
             new LatLng(42.5, 3.4));
     private CardView currentPositionCardView;
+
+    private FlightsController flightsController;
+    private ForecastController forecastController;
+    private final FlightsController.FlightsRequestResolvedCallback flightsRequestResolvedCallback = this;
+    private final ForecastController.ForecastResolvedCallback forecastResolvedCallback = this;
+    private int MAX_FLIGHTS = 1;
+    private int actForecastFlightRequestPos = -1;
+    private ArrayList<FlightQuote> flightQuoteArray;
+    private ArrayList<FlightQuote> filteredFlightQuoteArray;
 
     public static MainFragmentActivity newInstance() {
         return new MainFragmentActivity();
@@ -74,6 +89,9 @@ public class MainFragmentActivity extends Fragment implements ForecastController
         setUpElements();
         setUpListeners();
 
+        flightsController = new FlightsController(getActivity());
+        forecastController = new ForecastController(getActivity());
+
         mapView.onCreate(savedInstanceState);
         mapView.onResume();
 
@@ -95,6 +113,10 @@ public class MainFragmentActivity extends Fragment implements ForecastController
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 Airport airportSelected = (Airport) arg0.getAdapter().getItem(arg2);
                 autoCompleteOriginAirport.setHint(airportSelected.getCode() + " - " + airportSelected.getName() + ", " + airportSelected.getCountry());
+                //Toast.makeText(getActivity(), airportSelected.getCode() + "-" + airportSelected.getName(), Toast.LENGTH_SHORT).show();
+
+                flightsController.flightsRequest(airportSelected.getCode(), "anywhere", "anytime", "anytime", flightsRequestResolvedCallback);
+
                 autoCompleteOriginAirport.setText("");
                 hideKeyboard(rootView);
                 autoCompleteOriginAirport.clearFocus();
@@ -140,12 +162,55 @@ public class MainFragmentActivity extends Fragment implements ForecastController
     }
 
     @Override
+    public void onflightsRequestResolved(ArrayList<FlightQuote> flightQuoteArray) {
+        Log.e(TAG, "Flight request in MainFragment :D");
+
+        this.flightQuoteArray = filterFlights16Days(flightQuoteArray);
+        this.filteredFlightQuoteArray = new ArrayList<>();
+
+        Log.e(TAG, "Num SkyScanner flights: " + flightQuoteArray.size() + " Filtered: " + this.flightQuoteArray.size());
+
+        if (this.flightQuoteArray.size() > 0) {
+            actForecastFlightRequestPos = 0;
+            callNextForecastRequest();
+        }
+        else {
+            Toast.makeText(getActivity(), "No flight found", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
     public void onForecastResolved(ArrayList<Forecast> forecastArray) {
         Log.e(TAG, "Forecast on MainActivity :D");
-        Log.e(TAG, forecastArray.toString());
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        String flightDateString = dateFormat.format(flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().getDate());
 
         for (int i = 0; i < forecastArray.size(); ++i) {
-            Log.e(TAG, Double.toString(forecastArray.get(i).getTemperature()) + " " + Integer.toString(forecastArray.get(i).getTemperatureScale()));
+            String forecastDateString = dateFormat.format(forecastArray.get(i).getDate());
+            if (flightDateString.equals(forecastDateString)) {
+                // forecast for flight day
+                if (flightSatisfyFilters(forecastArray.get(i)))
+                    filteredFlightQuoteArray.add(flightQuoteArray.get(actForecastFlightRequestPos));
+
+                break;
+            }
+        }
+
+        actForecastFlightRequestPos++;
+        if (filteredFlightQuoteArray.size() < MAX_FLIGHTS && actForecastFlightRequestPos < flightQuoteArray.size()) callNextForecastRequest();
+        else {
+            if (filteredFlightQuoteArray.size() == 0) {
+                Toast.makeText(getActivity(), "No flight found", Toast.LENGTH_SHORT).show();
+            }
+
+            for (int i = 0; i < filteredFlightQuoteArray.size(); ++i) {
+                FlightQuote flightQuote = filteredFlightQuoteArray.get(i);
+                Toast.makeText(getActivity(), "Price: " + flightQuote.getMinPrice() +
+                        " from " + flightQuote.getInboundLeg().getOrigin().getCode() +
+                        " to " + flightQuote.getInboundLeg().getDestination().getCode(), Toast.LENGTH_SHORT).show();
+
+            }
         }
     }
 
@@ -168,6 +233,32 @@ public class MainFragmentActivity extends Fragment implements ForecastController
         });
 
         mMap.getUiSettings().setAllGesturesEnabled(false);
+    }
+
+    private void callNextForecastRequest() {
+        double latitude = flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().getDestination().getLatitude();
+        double longitude = flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().getDestination().getLongitude();
+        forecastController.forecastRequest(latitude, longitude, forecastResolvedCallback);
+    }
+
+    private ArrayList<FlightQuote> filterFlights16Days(ArrayList<FlightQuote> flightQuotes) {
+        ArrayList<FlightQuote> filteredArray = new ArrayList<>();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        Date today = new Date();
+        for (int i = 0; i < flightQuotes.size(); ++i) {
+            Date flightDate = flightQuotes.get(i).getInboundLeg().getDate();
+            long diff = flightDate.getTime() - today.getTime();
+            long numDays = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+            if (numDays > 0 && numDays <= 16) filteredArray.add(flightQuotes.get(i));
+        }
+
+        return filteredArray;
+    }
+
+    private boolean flightSatisfyFilters(Forecast forecast) {
+        //if (forecastArray.get(i).getTemperatureScale()  Forecast.TEMP_LOW)
+        return true;
     }
 
     @Override
