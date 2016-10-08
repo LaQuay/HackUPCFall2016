@@ -55,6 +55,8 @@
         android:layout_marginEnd="2dp"
         android:layout_marginStart="2dp"
         android:layout_toStartOf="@+id/fragment_main_settings_button_cardview"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         card_view:cardCornerRadius="2dp"
         card_view:contentPadding="2dp">
 
@@ -95,6 +97,8 @@
         android:layout_marginEnd="5dp"
         android:layout_marginStart="5dp"
         android:layout_marginTop="18dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:visibility="gone"
         card_view:cardCornerRadius="2dp"
         card_view:contentPadding="2dp">
@@ -179,19 +183,19 @@
         android:id="@+id/fragment_main_loading_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="10dp"
         android:layout_alignTop="@+id/scroll_flights">
+
         <com.wang.avi.AVLoadingIndicatorView
-            android:id="@+id/avi"
+            android:id="@+id/fragment_main_avi"
+            style="@style/AVLoadingIndicatorView"
             android:layout_width="80dp"
             android:layout_height="80dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
             android:layout_marginTop="50dp"
-            style="@style/AVLoadingIndicatorView"
             android:visibility="visible"
             app:indicatorColor="#98e2ec"
-            app:indicatorName="BallClipRotatePulseIndicator"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true" />
+            app:indicatorName="BallClipRotatePulseIndicator" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -200,7 +204,6 @@
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
         android:layout_alignTop="@+id/scroll_flights"
-        android:layout_marginTop="10dp"
         android:visibility="invisible">
 
         <TextView

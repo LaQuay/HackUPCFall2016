@@ -76,8 +76,6 @@ public class ForecastController {
     }
 
     private ArrayList<Forecast> parseForecastJSON16Day(JSONObject forecastJSONObject) {
-        Log.e(TAG, "Forecast on ForecastController");
-
         ArrayList<Forecast> forecastArray = new ArrayList<Forecast>();
 
         try {

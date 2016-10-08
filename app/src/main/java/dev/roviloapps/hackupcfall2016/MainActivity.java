@@ -1,17 +1,23 @@
 package dev.roviloapps.hackupcfall2016;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
@@ -101,7 +107,36 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_about) {
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+            LayoutInflater inflater = this.getLayoutInflater();
+            View dialogView = inflater.inflate(R.layout.dialog_about_us, null);
+            dialogBuilder.setView(dialogView);
+
+            LinearLayout linearAlejandro = (LinearLayout) dialogView.findViewById(R.id.dialog_about_us_alejandro_dialog);
+            linearAlejandro.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://es.linkedin.com/in/alejandrorosasdev")));
+                }
+            });
+            LinearLayout linearEster = (LinearLayout) dialogView.findViewById(R.id.dialog_about_us_ester_dialog);
+            linearEster.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://es.linkedin.com/in/elorenteg")));
+                }
+            });
+            LinearLayout linearMarc = (LinearLayout) dialogView.findViewById(R.id.dialog_about_us_marc_dialog);
+            linearMarc.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://es.linkedin.com/in/marcvilagomez")));
+                }
+            });
+
+            AlertDialog alertDialog = dialogBuilder.create();
+            alertDialog.show();
             return true;
         }
 

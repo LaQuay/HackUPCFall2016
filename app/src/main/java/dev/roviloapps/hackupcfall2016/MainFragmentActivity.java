@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,6 +42,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -50,6 +52,7 @@ import dev.roviloapps.hackupcfall2016.controllers.FlightsController;
 import dev.roviloapps.hackupcfall2016.controllers.ForecastController;
 import dev.roviloapps.hackupcfall2016.controllers.LocationController;
 import dev.roviloapps.hackupcfall2016.model.Airport;
+import dev.roviloapps.hackupcfall2016.model.Flight;
 import dev.roviloapps.hackupcfall2016.model.FlightQuote;
 import dev.roviloapps.hackupcfall2016.model.Forecast;
 import dev.roviloapps.hackupcfall2016.utility.MathUtils;
@@ -96,10 +99,6 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
 
     private AVLoadingIndicatorView avi;
     private RelativeLayout noDataLayout;
-
-    private int weatherCondition = Forecast.WEATHER_CLEAR;
-    private int temperatureScale = -1;//Forecast.TEMP_HIGH;
-    private double temperature = 20;
 
     public static MainFragmentActivity newInstance() {
         return new MainFragmentActivity();
@@ -156,10 +155,10 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 Airport airportSelected = (Airport) arg0.getAdapter().getItem(arg2);
-
                 flightsHolderLayout.removeAllViews();
+                noDataLayout.setVisibility(View.INVISIBLE);
                 avi.show();
-
+                
                 autoCompleteOriginAirport.setText("");
                 Utility.hideKeyboard(getContext(), rootView);
                 autoCompleteOriginAirport.clearFocus();
@@ -196,7 +195,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         hotCheckbox = (CheckBox) rootView.findViewById(R.id.fragment_main_hot_checkbox);
         coldCheckbox = (CheckBox) rootView.findViewById(R.id.fragment_main_cold_checkbox);
 
-        avi = (AVLoadingIndicatorView) rootView.findViewById(R.id.avi);
+        avi = (AVLoadingIndicatorView) rootView.findViewById(R.id.fragment_main_avi);
         noDataLayout = (RelativeLayout) rootView.findViewById(R.id.fragment_main_no_data_layout);
     }
 
@@ -213,7 +212,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
                     noDataLayout.setVisibility(View.INVISIBLE);
                     flightsHolderLayout.removeAllViews();
                     avi.show();
-                    flightsController.flightsRequest(airport.getCode(), "anywhere", "anytime", "anytime", flightsRequestResolvedCallback);
+                    sendFlightRequest(airport.getCode());
+                    //flightsController.flightsRequest(airport.getCode(), "anywhere", "anytime", "anytime", flightsRequestResolvedCallback);
                 } else {
                     Snackbar.make(v, "It's not possible to do a request, user location not available", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
@@ -256,6 +256,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
                 SharedPreferencesManager.setBooleanValue(getContext(),
                         SharedPreferencesManager.CHECKBOX_SUN_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX,
                         sunCheckbox.isChecked());
+
+                filterFlightsWeather();
             }
         });
         rainCheckbox.setOnClickListener(new View.OnClickListener() {
@@ -264,6 +266,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
                 SharedPreferencesManager.setBooleanValue(getContext(),
                         SharedPreferencesManager.CHECKBOX_RAIN_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX,
                         rainCheckbox.isChecked());
+
+                filterFlightsWeather();
             }
         });
         snowCheckbox.setOnClickListener(new View.OnClickListener() {
@@ -272,6 +276,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
                 SharedPreferencesManager.setBooleanValue(getContext(),
                         SharedPreferencesManager.CHECKBOX_SNOW_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX,
                         snowCheckbox.isChecked());
+
+                filterFlightsWeather();
             }
         });
         hotCheckbox.setOnClickListener(new View.OnClickListener() {
@@ -280,6 +286,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
                 SharedPreferencesManager.setBooleanValue(getContext(),
                         SharedPreferencesManager.CHECKBOX_HOT_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX,
                         hotCheckbox.isChecked());
+
+                filterFlightsWeather();
             }
         });
         coldCheckbox.setOnClickListener(new View.OnClickListener() {
@@ -288,6 +296,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
                 SharedPreferencesManager.setBooleanValue(getContext(),
                         SharedPreferencesManager.CHECKBOX_COLD_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX,
                         coldCheckbox.isChecked());
+
+                filterFlightsWeather();
             }
         });
     }
@@ -300,28 +310,35 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         coldCheckbox.setChecked(SharedPreferencesManager.getBooleanValue(getContext(), SharedPreferencesManager.CHECKBOX_COLD_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX, true));
     }
 
+    public void sendFlightRequest(String airportCode) {
+        Log.e(TAG, airportCode);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, 16);
+
+        String today = dateFormat.format(new Date());
+        String day16 = dateFormat.format(cal.getTime());
+        Log.e(TAG, today + " " + day16);
+
+        today = "anytime";
+        day16 = "anytime";
+
+        flightsController.flightsRequest(airportCode, "anywhere", today, day16, flightsRequestResolvedCallback);
+    }
+
     @Override
     public void onFlightsRequestResolved(ArrayList<FlightQuote> flightQuoteArray) {
-        Log.e(TAG, "Flight request in MainFragment :D");
+        Log.e(TAG, "Flight request");
 
         this.flightQuoteArray = filterFlights16Days(flightQuoteArray);
-        this.filteredFlightQuoteArray = new ArrayList<>();
 
-        Log.e(TAG, "Num SkyScanner flights: " + flightQuoteArray.size() + " Filtered: " + this.flightQuoteArray.size());
-
-        if (this.flightQuoteArray.size() > 0) {
-            actForecastFlightRequestPos = 0;
-            callNextForecastRequest();
-        } else {
-            avi.hide();
-            noDataLayout.setVisibility(View.VISIBLE);
-            Toast.makeText(getActivity(), "No flight found", Toast.LENGTH_SHORT).show();
-        }
+        filterFlightsWeather();
     }
 
     @Override
     public void onForecastResolved(ArrayList<Forecast> forecastArray) {
-        Log.e(TAG, "Forecast on MainActivity :D");
+        Log.e(TAG, "Forecast request");
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
         String flightDateString = dateFormat.format(flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().getDate());
@@ -331,19 +348,38 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             String forecastDateString = dateFormat.format(forecast.getDate());
             if (flightDateString.equals(forecastDateString)) {
                 // forecast for flight day
-                if (flightSatisfyFilters(forecastArray.get(i))) {
-                    flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().setWeatherConditionDestination(forecast.getWeatherCondition());
-                    flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().setTemperatureScaleDestination(forecast.getTemperatureScale());
-                    flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().setTemperatureDestination(forecast.getTemperature());
+                flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().setWeatherConditionDestination(forecast.getWeatherCondition());
+                flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().setTemperatureScaleDestination(forecast.getTemperatureScale());
+                flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().setTemperatureDestination(forecast.getTemperature());
+
+                if (flightSatisfyFilters(forecastArray.get(i).getWeatherCondition(), forecastArray.get(i).getTemperatureScale())) {
                     filteredFlightQuoteArray.add(flightQuoteArray.get(actForecastFlightRequestPos));
                 }
                 break;
             }
         }
+        checkNextForecastFlight();
+    }
 
+    public void checkForecastFlight() {
+        Flight flight = flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg();
+
+        if (flight.getWeatherConditionDestination() != -1) {
+            // forecast not necessary to call
+            if (flightSatisfyFilters(flight.getWeatherConditionDestination(), flight.getTemperatureScaleDestination())) {
+                filteredFlightQuoteArray.add(flightQuoteArray.get(actForecastFlightRequestPos));
+            }
+            checkNextForecastFlight();
+        }
+        else {
+            callNextForecastRequest();
+        }
+    }
+
+    public void checkNextForecastFlight() {
         actForecastFlightRequestPos++;
         if (filteredFlightQuoteArray.size() < MAX_FLIGHTS && actForecastFlightRequestPos < flightQuoteArray.size()) {
-            callNextForecastRequest();
+            checkForecastFlight();
         } else {
             if (filteredFlightQuoteArray.size() == 0) {
                 Toast.makeText(getActivity(), "No flight found", Toast.LENGTH_SHORT).show();
@@ -351,6 +387,28 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
 
             addFlightsToLayout();
         }
+    }
+
+    private void filterFlightsWeather() {
+        this.filteredFlightQuoteArray = new ArrayList<>();
+
+        Log.e(TAG, "Num SkyScanner flights: " + flightQuoteArray.size() + " Filtered: " + this.flightQuoteArray.size());
+
+        if (this.flightQuoteArray.size() > 0) {
+            actForecastFlightRequestPos = 0;
+            checkForecastFlight();
+        } else {
+            avi.hide();
+            noDataLayout.setVisibility(View.VISIBLE);
+
+            Toast.makeText(getActivity(), "No flight found", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void callNextForecastRequest() {
+        double latitude = flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().getDestination().getLatitude();
+        double longitude = flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().getDestination().getLongitude();
+        forecastController.forecastRequest(latitude, longitude, forecastResolvedCallback);
     }
 
     private void addFlightsToLayout() {
@@ -420,47 +478,44 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         mMap.getUiSettings().setMapToolbarEnabled(false);
     }
 
-    private void callNextForecastRequest() {
-        double latitude = flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().getDestination().getLatitude();
-        double longitude = flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().getDestination().getLongitude();
-        forecastController.forecastRequest(latitude, longitude, forecastResolvedCallback);
-    }
-
     private ArrayList<FlightQuote> filterFlights16Days(ArrayList<FlightQuote> flightQuotes) {
         ArrayList<FlightQuote> filteredArray = new ArrayList<>();
 
         Date today = new Date();
         for (int i = 0; i < flightQuotes.size(); ++i) {
-            Date flightDate = flightQuotes.get(i).getInboundLeg().getDate();
-            long diff = flightDate.getTime() - today.getTime();
-            long numDays = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
-            if (numDays > 0 && numDays <= 16) filteredArray.add(flightQuotes.get(i));
+            Log.e(TAG, "Price: " + flightQuotes.get(i).getMinPrice() + " Date: " + flightQuotes.get(i).getInboundLeg().getDate());
+            if (flightQuotes.get(i).getInboundLeg() != null) {
+                Date flightDate = flightQuotes.get(i).getInboundLeg().getDate();
+                long diff = flightDate.getTime() - today.getTime();
+                long numDays = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+                if (numDays > 0 && numDays <= 16) filteredArray.add(flightQuotes.get(i));
+            }
         }
 
         return filteredArray;
     }
 
-    private boolean flightSatisfyFilters(Forecast forecast) {
+    private boolean flightSatisfyFilters(int weatherCondition, int temperatureScale) {
         boolean isSunChecked = SharedPreferencesManager.getBooleanValue(getContext(), SharedPreferencesManager.CHECKBOX_SUN_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX, true);
         boolean isRainChecked = SharedPreferencesManager.getBooleanValue(getContext(), SharedPreferencesManager.CHECKBOX_RAIN_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX, true);
         boolean isSnowChecked = SharedPreferencesManager.getBooleanValue(getContext(), SharedPreferencesManager.CHECKBOX_SNOW_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX, true);
         boolean isHotChecked = SharedPreferencesManager.getBooleanValue(getContext(), SharedPreferencesManager.CHECKBOX_HOT_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX, true);
         boolean isColdChecked = SharedPreferencesManager.getBooleanValue(getContext(), SharedPreferencesManager.CHECKBOX_COLD_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX, true);
 
-        if (!isSunChecked && forecast.getWeatherCondition() == Forecast.WEATHER_CLEAR) {
+        if (!isSunChecked && weatherCondition == Forecast.WEATHER_CLEAR) {
             return false;
         }
-        if (!isRainChecked && forecast.getWeatherCondition() == Forecast.WEATHER_RAINY) {
+        if (!isRainChecked && weatherCondition == Forecast.WEATHER_RAINY) {
             return false;
         }
         //TODO Change CLOUDS -> SNOW
-        if (!isSnowChecked && forecast.getWeatherCondition() == Forecast.WEATHER_CLOUDS) {
+        if (!isSnowChecked && weatherCondition == Forecast.WEATHER_CLOUDS) {
             return false;
         }
-        if (!isHotChecked && forecast.getTemperatureScale() == Forecast.TEMP_HIGH) {
+        if (!isHotChecked && temperatureScale == Forecast.TEMP_HIGH) {
             return false;
         }
-        return !(!isColdChecked && forecast.getTemperatureScale() == Forecast.TEMP_LOW);
+        return !(!isColdChecked && temperatureScale == Forecast.TEMP_LOW);
     }
 
     @Override
@@ -502,7 +557,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         addMarkerSourceAirport(latLng);
         animateCamera(latLng);
         autoCompleteOriginAirport.setHint(airport.getCode() + " - " + airport.getName() + ", " + airport.getCountry());
-        flightsController.flightsRequest(airport.getCode(), "anywhere", "anytime", "anytime", flightsRequestResolvedCallback);
+
+        sendFlightRequest(airport.getCode());
     }
 
     private void addMarkerSourceAirport(LatLng latLng) {
