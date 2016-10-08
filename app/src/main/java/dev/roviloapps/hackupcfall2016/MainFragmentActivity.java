@@ -98,10 +98,6 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
 
     private AVLoadingIndicatorView avi;
 
-    private int weatherCondition = Forecast.WEATHER_CLEAR;
-    private int temperatureScale = -1;//Forecast.TEMP_HIGH;
-    private double temperature = 20;
-
     public static MainFragmentActivity newInstance() {
         return new MainFragmentActivity();
     }
@@ -156,9 +152,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         autoCompleteOriginAirport.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                Airport airportSelected = (Airport) arg0.getAdapter().getItem(arg2);
-
                 avi.show();
+                Airport airportSelected = (Airport) arg0.getAdapter().getItem(arg2);
 
                 autoCompleteOriginAirport.setText("");
                 Utility.hideKeyboard(getContext(), rootView);
@@ -196,7 +191,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         hotCheckbox = (CheckBox) rootView.findViewById(R.id.fragment_main_hot_checkbox);
         coldCheckbox = (CheckBox) rootView.findViewById(R.id.fragment_main_cold_checkbox);
 
-        avi = (AVLoadingIndicatorView) rootView.findViewById(R.id.avi);
+        avi = (AVLoadingIndicatorView) rootView.findViewById(R.id.fragment_main_avi);
     }
 
     private void setUpListeners() {
