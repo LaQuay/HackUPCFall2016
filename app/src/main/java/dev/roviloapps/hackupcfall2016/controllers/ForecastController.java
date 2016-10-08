@@ -102,6 +102,8 @@ public class ForecastController {
                 forecast.setTemperatureMin(Double.parseDouble(forecastMain.getString("temp_min")));
                 forecast.setTemperatureMax(Double.parseDouble(forecastMain.getString("temp_max")));
 
+                forecast.setTemperatureScale();
+
                 forecastArray.add(forecast);
             }
 
