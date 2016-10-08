@@ -1,9 +1,5 @@
 package dev.roviloapps.hackupcfall2016.model;
 
-/**
- * Created by LaQuay on 08/10/2016.
- */
-
 public class Airport {
     private String code;
     private double latitude;

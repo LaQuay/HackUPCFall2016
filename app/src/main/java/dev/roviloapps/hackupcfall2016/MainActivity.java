@@ -14,6 +14,9 @@ import dev.roviloapps.hackupcfall2016.controllers.ForecastController;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
+    private double LATITUDE = 35;
+    private double LONGITUDE = 139;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 ForecastController forecastController = new ForecastController(getApplicationContext());
-                forecastController.forecastRequest("35","139");
+                forecastController.forecastRequest(LATITUDE, LONGITUDE);
 
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
