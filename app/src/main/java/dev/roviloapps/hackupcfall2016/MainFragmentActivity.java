@@ -53,6 +53,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     private static final String TAG = MainFragmentActivity.class.getSimpleName();
     private static final int DEFAULT_ZOOM = 13;
     private static final int DEFAULT_NO_LOCATION_ZOOM = 10;
+    private static final int MAX_FLIGHTS = 10;
     private final FlightsController.FlightsRequestResolvedCallback flightsRequestResolvedCallback = this;
     private final ForecastController.ForecastResolvedCallback forecastResolvedCallback = this;
     private LayoutInflater inflater;
@@ -75,7 +76,6 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     private CheckBox coldCheckbox;
     private FlightsController flightsController;
     private ForecastController forecastController;
-    private int MAX_FLIGHTS = 3;
     private int actForecastFlightRequestPos = -1;
     private ArrayList<FlightQuote> flightQuoteArray;
     private ArrayList<FlightQuote> filteredFlightQuoteArray;

@@ -92,6 +92,7 @@
         android:layout_marginEnd="5dp"
         android:layout_marginStart="5dp"
         android:layout_marginTop="18dp"
+        android:visibility="gone"
         card_view:cardCornerRadius="2dp"
         card_view:contentPadding="2dp">
 
@@ -168,4 +169,21 @@
             android:layout_height="match_parent"
             android:orientation="vertical" />
     </ScrollView>
+
+    <RelativeLayout
+        android:id="@+id/fragment_main_loading_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/fragment_main_settings_layout_cardview">
+        
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/fragment_main_no_data_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true">
+
+    </RelativeLayout>
 </RelativeLayout>
