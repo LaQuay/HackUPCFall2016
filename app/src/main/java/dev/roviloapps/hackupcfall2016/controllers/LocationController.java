@@ -75,10 +75,12 @@ public final class LocationController implements LocationListener, GoogleApiClie
 
     public void stopLocation() {
         if (mGoogleApiClient != null) {
-            if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                    && ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-                mGoogleApiClient.disconnect();
+            if (mGoogleApiClient.isConnected()) {
+                if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        && ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+                    mGoogleApiClient.disconnect();
+                }
             }
         }
     }
