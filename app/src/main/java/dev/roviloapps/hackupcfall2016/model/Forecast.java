@@ -29,7 +29,7 @@ public class Forecast {
     }
 
     public void setTemperature(double temperature) {
-        this.temperature = kelvinToCelsius(temperature);
+        this.temperature = temperature;
     }
 
     public double getTemperatureMin() {
@@ -37,7 +37,7 @@ public class Forecast {
     }
 
     public void setTemperatureMin(double temperatureMin) {
-        this.temperatureMin = kelvinToCelsius(temperatureMin);
+        this.temperatureMin = temperatureMin;
     }
 
     public double getTemperatureMax() {
@@ -45,7 +45,7 @@ public class Forecast {
     }
 
     public void setTemperatureMax(double temperatureMax) {
-        this.temperatureMax = kelvinToCelsius(temperatureMax);
+        this.temperatureMax = temperatureMax;
     }
 
     public int getTemperatureScale() {
@@ -58,9 +58,5 @@ public class Forecast {
         else if (temperature < 10) scale = TEMP_LOW;
 
         this.temperatureScale = scale;
-    }
-
-    private double kelvinToCelsius(double temp) {
-        return temp - 273.15;
     }
 }
