@@ -2,9 +2,7 @@ package dev.roviloapps.hackupcfall2016;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.app.Activity;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -156,10 +154,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 Airport airportSelected = (Airport) arg0.getAdapter().getItem(arg2);
-                autoCompleteOriginAirport.setHint(airportSelected.getCode() + " - " + airportSelected.getName() + ", " + airportSelected.getCountry());
 
                 avi.show();
-                flightsController.flightsRequest(airportSelected.getCode(), "anywhere", "anytime", "anytime", flightsRequestResolvedCallback);
 
                 autoCompleteOriginAirport.setText("");
                 Utility.hideKeyboard(getContext(), rootView);
@@ -224,16 +220,6 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             public void onClick(View v) {
                 if (!isSettingsActivated) {
                     settingsLayoutCardView.animate()
-                            .translationY(0).alpha(0.0f)
-                            .setListener(new AnimatorListenerAdapter() {
-                                @Override
-                                public void onAnimationEnd(Animator animation) {
-                                    super.onAnimationEnd(animation);
-                                    settingsLayoutCardView.setVisibility(View.GONE);
-                                }
-                            });
-                } else {
-                    settingsLayoutCardView.animate()
                             .translationY(0).alpha(1.0f)
                             .setListener(new AnimatorListenerAdapter() {
                                 @Override
@@ -241,6 +227,16 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
                                     super.onAnimationStart(animation);
                                     settingsLayoutCardView.setVisibility(View.VISIBLE);
                                     settingsLayoutCardView.setAlpha(0.0f);
+                                }
+                            });
+                } else {
+                    settingsLayoutCardView.animate()
+                            .translationY(0).alpha(0.0f)
+                            .setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    super.onAnimationEnd(animation);
+                                    settingsLayoutCardView.setVisibility(View.GONE);
                                 }
                             });
                 }
@@ -334,7 +330,6 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
                     flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().setTemperatureDestination(forecast.getTemperature());
                     filteredFlightQuoteArray.add(flightQuoteArray.get(actForecastFlightRequestPos));
                 }
-
                 break;
             }
         }
@@ -410,20 +405,6 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-            @Override
-            public void onMapLoaded() {
-
-            }
-        });
-
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-
-            }
-        });
-
         mMap.getUiSettings().setAllGesturesEnabled(true);
         mMap.getUiSettings().setMapToolbarEnabled(false);
     }
@@ -477,12 +458,10 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         if (location != null) {
             Log.e(TAG, "New location: " + location.getLatitude() + ", " + location.getLongitude());
 
-            //LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-            //addMarkerUser(latLng);
-
             Airport airport = checkNearestAirport(location);
             if (airport != null) {
                 addMarkerSourceAirport(new LatLng(airport.getLatitude(), airport.getLongitude()));
+                selectAirport(airport);
             }
             isCurrentPositionActivated = true;
         }
@@ -511,12 +490,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         LatLng latLng = new LatLng(airport.getLatitude(), airport.getLongitude());
         addMarkerSourceAirport(latLng);
         animateCamera(latLng);
-    }
-
-    private void addMarkerUser(LatLng latLng) {
-        mMap.addMarker(new MarkerOptions()
-                .position(latLng)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.map_user_marker)));
+        autoCompleteOriginAirport.setHint(airport.getCode() + " - " + airport.getName() + ", " + airport.getCountry());
+        flightsController.flightsRequest(airport.getCode(), "anywhere", "anytime", "anytime", flightsRequestResolvedCallback);
     }
 
     private void addMarkerSourceAirport(LatLng latLng) {
