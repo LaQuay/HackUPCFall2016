@@ -22,11 +22,13 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import java.util.ArrayList;
 
 import dev.roviloapps.hackupcfall2016.controllers.AirportController;
+import dev.roviloapps.hackupcfall2016.controllers.FlightsController;
 import dev.roviloapps.hackupcfall2016.controllers.ForecastController;
 import dev.roviloapps.hackupcfall2016.model.Airport;
+import dev.roviloapps.hackupcfall2016.model.FlightQuote;
 import dev.roviloapps.hackupcfall2016.model.Forecast;
 
-public class MainFragmentActivity extends Fragment implements ForecastController.ForecastResolvedCallback, OnMapReadyCallback {
+public class MainFragmentActivity extends Fragment implements FlightsController.FlightsRequestResolvedCallback, ForecastController.ForecastResolvedCallback, OnMapReadyCallback {
     private static final String TAG = MainFragmentActivity.class.getSimpleName();
     private View rootView;
     private AutoCompleteTextView autoCompleteOriginAirport;
@@ -35,6 +37,12 @@ public class MainFragmentActivity extends Fragment implements ForecastController
     private LatLngBounds CAT = new LatLngBounds(
             new LatLng(40.3, 0.2),
             new LatLng(42.5, 3.4));
+
+    private FlightsController flightsController;
+    private ForecastController forecastController;
+    private final FlightsController.FlightsRequestResolvedCallback flightsRequestResolvedCallback = this;
+    private final ForecastController.ForecastResolvedCallback forecastResolvedCallback = this;
+    private int MAX_FLIGHTS = 15;
 
     public static MainFragmentActivity newInstance() {
         return new MainFragmentActivity();
@@ -48,6 +56,9 @@ public class MainFragmentActivity extends Fragment implements ForecastController
 
         setUpElements();
         setUpListeners();
+
+        flightsController = new FlightsController(getActivity());
+        forecastController = new ForecastController(getActivity());
 
         mapView.onCreate(savedInstanceState);
         mapView.onResume();
@@ -70,6 +81,8 @@ public class MainFragmentActivity extends Fragment implements ForecastController
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 Airport airportSelected = (Airport) arg0.getAdapter().getItem(arg2);
                 Toast.makeText(getActivity(), airportSelected.getCode() + "-" + airportSelected.getName(), Toast.LENGTH_SHORT).show();
+
+                flightsController.flightsRequest(airportSelected.getCode(), "anywhere", "anytime", "anytime", flightsRequestResolvedCallback);
             }
         });
 
@@ -84,6 +97,15 @@ public class MainFragmentActivity extends Fragment implements ForecastController
 
     private void setUpListeners() {
 
+    }
+
+    @Override
+    public void onflightsRequestResolved(ArrayList<FlightQuote> flightQuoteArray) {
+        Log.e(TAG, "Flight request in MainFragment :D");
+        Log.e(TAG, "Num flights: " + flightQuoteArray.size());
+
+        ArrayList<FlightQuote> minFlightQuoteArray = filterFlighQuotes(flightQuoteArray);
+        Log.e(TAG, "Num flights: " + minFlightQuoteArray.size());
     }
 
     @Override
@@ -116,5 +138,28 @@ public class MainFragmentActivity extends Fragment implements ForecastController
         });
 
         mMap.getUiSettings().setAllGesturesEnabled(false);
+    }
+
+    private ArrayList<FlightQuote> filterFlighQuotes(ArrayList<FlightQuote> flightQuoteArray) {
+        ArrayList<FlightQuote> minPriceFlights = new ArrayList<>();
+        for (int i = 0; i < flightQuoteArray.size(); ++i) {
+            FlightQuote flightQuote = flightQuoteArray.get(i);
+
+            boolean satisfyFilters = flightSatisfyFilters(flightQuote);
+            if (satisfyFilters) {
+                minPriceFlights.add(flightQuote);
+                Log.e(TAG, "Price: " + flightQuote.getMinPrice() +
+                        " from " + flightQuote.getInboundLeg().getOrigin().getCode() +
+                        " to " + flightQuote.getInboundLeg().getDestination().getCode());
+            }
+
+            if (minPriceFlights.size() == MAX_FLIGHTS) break;
+        }
+
+        return minPriceFlights;
+    }
+
+    private boolean flightSatisfyFilters(FlightQuote flightQuote) {
+        return true;
     }
 }

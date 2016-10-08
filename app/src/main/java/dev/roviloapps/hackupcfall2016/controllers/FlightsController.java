@@ -1,6 +1,7 @@
 package dev.roviloapps.hackupcfall2016.controllers;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -17,8 +18,11 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dev.roviloapps.hackupcfall2016.model.Airport;
@@ -68,7 +72,10 @@ public class FlightsController {
                                     if (jquotes.getJSONObject(i).has("InboundLeg"))
                                         inboundLeg = legToFlight(jquotes.getJSONObject(i).getJSONObject("InboundLeg"), response);
 
-                                    quotes.add(new FlightQuote(minPrice,direct,outboundLeg,inboundLeg));
+                                    FlightQuote flightQuote = new FlightQuote(minPrice,direct,outboundLeg,inboundLeg);
+                                    int sortPos = binarySortPricePosition(quotes, flightQuote);
+                                    //Log.e(TAG, "sortpos: " + sortPos);
+                                    quotes.add(sortPos, flightQuote);
                                 }
                                 catch (Exception ex)
                                 {
@@ -140,5 +147,16 @@ public class FlightsController {
 
     public interface FlightsRequestResolvedCallback {
         void onflightsRequestResolved(ArrayList<FlightQuote> flightQuotesArray);
+    }
+
+    private int binarySortPricePosition(ArrayList<FlightQuote> flightQuotes, FlightQuote flightQuote) {
+        int ind = Collections.binarySearch(flightQuotes, flightQuote);
+
+        // if same MinPrice, ind indicates its position
+        // else ind indicates (- ind - 1) position
+        if (ind < 0) ind = - ind - 1;
+        //Log.e(TAG, ind + " " + flightQuote.getMinPrice());
+
+        return ind;
     }
 }

@@ -1,10 +1,6 @@
 package dev.roviloapps.hackupcfall2016.model;
 
-/**
- * Created by alejandro on 8/10/16.
- */
-
-public class FlightQuote {
+public class FlightQuote implements Comparable<FlightQuote> {
     private double minPrice;
     private boolean direct;
     private Flight inboundLeg;
@@ -47,5 +43,12 @@ public class FlightQuote {
 
     public void setOutboundLeg(Flight outboundLeg) {
         this.outboundLeg = outboundLeg;
+    }
+
+    @Override
+    public int compareTo(FlightQuote o) {
+        if (minPrice < o.getMinPrice()) return -1;
+        else if (minPrice == o.getMinPrice()) return 0;
+        return 1;
     }
 }

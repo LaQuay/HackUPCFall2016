@@ -94,9 +94,8 @@ public class ForecastController {
                 Forecast forecast = new Forecast();
 
                 long unixSeconds = forecastObject.getLong("dt");
-                Date date = null;
                 try {
-                    date = unixTimeStampToDate(unixSeconds, format);
+                    Date date = unixTimeStampToDate(unixSeconds, format);
                     forecast.setDate(date);
                 } catch (ParseException e) {
                     e.printStackTrace();
