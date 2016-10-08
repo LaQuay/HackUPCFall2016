@@ -8,9 +8,9 @@ public class Flight {
     private Airport origin;
     private Airport destination;
     private Date date;
-    private int weatherConditionDestination;
-    private double temperatureScaleDestination;
-    private double temperatureDestination;
+    private int weatherConditionDestination = -1;
+    private int temperatureScaleDestination = -1;
+    private double temperatureDestination = -1;
 
     public Flight(ArrayList<String> carriers, Airport origin, Airport destination, Date date) {
         this.carriers = carriers;
@@ -59,11 +59,11 @@ public class Flight {
         this.weatherConditionDestination = weatherConditionDestination;
     }
 
-    public double getTemperatureScaleDestination() {
+    public int getTemperatureScaleDestination() {
         return temperatureScaleDestination;
     }
 
-    public void setTemperatureScaleDestination(double temperatureScaleDestination) {
+    public void setTemperatureScaleDestination(int temperatureScaleDestination) {
         this.temperatureScaleDestination = temperatureScaleDestination;
     }
 
