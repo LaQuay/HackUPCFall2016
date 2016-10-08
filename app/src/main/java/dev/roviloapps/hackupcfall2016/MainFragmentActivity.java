@@ -68,6 +68,10 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     private ArrayList<FlightQuote> filteredFlightQuoteArray;
     private boolean isCurrentPositionActivated;
 
+    private int weatherCondition = Forecast.WEAtHER_CLEAR;
+    private int temperatureScale = -1;//Forecast.TEMP_HIGH;
+    private double temperature = 20;
+
     public static MainFragmentActivity newInstance() {
         return new MainFragmentActivity();
     }
@@ -201,11 +205,16 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         String flightDateString = dateFormat.format(flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().getDate());
 
         for (int i = 0; i < forecastArray.size(); ++i) {
-            String forecastDateString = dateFormat.format(forecastArray.get(i).getDate());
+            Forecast forecast = forecastArray.get(i);
+            String forecastDateString = dateFormat.format(forecast.getDate());
             if (flightDateString.equals(forecastDateString)) {
                 // forecast for flight day
-                if (flightSatisfyFilters(forecastArray.get(i)))
+                if (flightSatisfyFilters(forecastArray.get(i))) {
+                    flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().setWeatherConditionDestination(forecast.getWeatherCondition());
+                    flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().setTemperatureScaleDestination(forecast.getTemperatureScale());
+                    flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().setTemperatureDestination(forecast.getTemperature());
                     filteredFlightQuoteArray.add(flightQuoteArray.get(actForecastFlightRequestPos));
+                }
 
                 break;
             }
@@ -285,7 +294,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     }
 
     private boolean flightSatisfyFilters(Forecast forecast) {
-        //if (forecastArray.get(i).getTemperatureScale()  Forecast.TEMP_LOW)
+        if (temperatureScale != -1 && forecast.getTemperatureScale() != temperatureScale) return false;
+        if (weatherCondition != -1 && forecast.getWeatherCondition() != weatherCondition) return false;
         return true;
     }
 

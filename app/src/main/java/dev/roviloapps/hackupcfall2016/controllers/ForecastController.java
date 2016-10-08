@@ -102,53 +102,15 @@ public class ForecastController {
                 forecast.setTemperature(Double.parseDouble(forecastTemp.getString("eve")));
                 forecast.setTemperatureMin(Double.parseDouble(forecastTemp.getString("min")));
                 forecast.setTemperatureMax(Double.parseDouble(forecastTemp.getString("max")));
-
                 forecast.setTemperatureScale();
+
+                JSONObject weather = forecastObject.getJSONArray("weather").getJSONObject(0);
+                forecast.setWeatherCondition(weather.getString("main"));
 
                 forecastArray.add(forecast);
             }
             return forecastArray;
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return forecastArray;
-    }
-
-    private ArrayList<Forecast> parseForecastJSON5Day(JSONObject forecastJSONObject) {
-        Log.e(TAG, "Forecast on ForecastController");
-
-        ArrayList<Forecast> forecastArray = new ArrayList<Forecast>();
-
-        try {
-            JSONArray weatherArray = forecastJSONObject.getJSONArray("list");
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            SimpleDateFormat formatHour = new SimpleDateFormat("HH");
-
-            for (int i = 0; i < weatherArray.length(); i++) {
-                JSONObject forecastObject = weatherArray.getJSONObject(i);
-
-                Forecast forecast = new Forecast();
-                try {
-                    Date date = format.parse(forecastObject.getString("dt_txt"));
-                    if (!formatHour.format(date).equals("12")) continue;
-                    forecast.setDate(date);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-
-                JSONObject forecastMain = forecastObject.getJSONObject("main");
-                forecast.setTemperature(Double.parseDouble(forecastMain.getString("temp")));
-                forecast.setTemperatureMin(Double.parseDouble(forecastMain.getString("temp_min")));
-                forecast.setTemperatureMax(Double.parseDouble(forecastMain.getString("temp_max")));
-
-                forecast.setTemperatureScale();
-
-                forecastArray.add(forecast);
-            }
-
-            return forecastArray;
         } catch (JSONException e) {
             e.printStackTrace();
         }
