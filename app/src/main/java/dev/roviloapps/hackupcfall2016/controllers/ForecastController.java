@@ -5,10 +5,8 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.android.volley.Request;
-import com.android.volley.Request.Method;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.json.JSONArray;
@@ -19,7 +17,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import dev.roviloapps.hackupcfall2016.model.Forecast;
 
@@ -30,18 +27,11 @@ public class ForecastController {
 
     private final Context context;
 
-    public interface Listener {
-        public void forecastListener(ArrayList<Forecast> forecastArray);
-    }
-
-    private Listener mListener;
-
     public ForecastController(Context context) {
         this.context = context;
     }
 
-    public void forecastRequest(double lat, double lon) {
-
+    public void forecastRequest(double lat, double lon, final ForecastResolvedCallback forecastResolvedCallback) {
         Uri.Builder builder = new Uri.Builder();
         builder.scheme("http")
                 .authority("api.openweathermap.org")
@@ -61,7 +51,7 @@ public class ForecastController {
                     @Override
                     public void onResponse(JSONObject response) {
                         ArrayList<Forecast> forecastArray = parseForecastJSON(response);
-                        mListener.forecastListener(forecastArray);
+                        forecastResolvedCallback.onForecastResolved(forecastArray);
                     }
                 }, new Response.ErrorListener() {
 
@@ -116,7 +106,7 @@ public class ForecastController {
         return forecastArray;
     }
 
-    public void setListener(Listener listener) {
-        mListener = listener;
+    public interface ForecastResolvedCallback {
+        void onForecastResolved(ArrayList<Forecast> forecastArray);
     }
 }
