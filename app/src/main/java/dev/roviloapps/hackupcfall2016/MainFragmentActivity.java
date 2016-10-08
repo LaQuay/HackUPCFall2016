@@ -18,6 +18,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -94,6 +95,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     private CardView cvSelected;
 
     private AVLoadingIndicatorView avi;
+    private RelativeLayout noDataLayout;
 
     private int weatherCondition = Forecast.WEATHER_CLEAR;
     private int temperatureScale = -1;//Forecast.TEMP_HIGH;
@@ -155,6 +157,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 Airport airportSelected = (Airport) arg0.getAdapter().getItem(arg2);
 
+                flightsHolderLayout.removeAllViews();
                 avi.show();
 
                 autoCompleteOriginAirport.setText("");
@@ -194,6 +197,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         coldCheckbox = (CheckBox) rootView.findViewById(R.id.fragment_main_cold_checkbox);
 
         avi = (AVLoadingIndicatorView) rootView.findViewById(R.id.avi);
+        noDataLayout = (RelativeLayout) rootView.findViewById(R.id.fragment_main_no_data_layout);
     }
 
     private void setUpListeners() {
@@ -206,6 +210,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
 
                     autoCompleteOriginAirport.setHint(airport.getCode() + " - " + airport.getName() + ", " + airport.getCountry());
 
+                    noDataLayout.setVisibility(View.INVISIBLE);
+                    flightsHolderLayout.removeAllViews();
                     avi.show();
                     flightsController.flightsRequest(airport.getCode(), "anywhere", "anytime", "anytime", flightsRequestResolvedCallback);
                 } else {
@@ -308,6 +314,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             callNextForecastRequest();
         } else {
             avi.hide();
+            noDataLayout.setVisibility(View.VISIBLE);
             Toast.makeText(getActivity(), "No flight found", Toast.LENGTH_SHORT).show();
         }
     }
@@ -398,6 +405,10 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             flightsHolderLayout.addView(flightItemView);
         }
 
+        if (filteredFlightQuoteArray.size() > 0)
+            noDataLayout.setVisibility(View.INVISIBLE);
+        else
+            noDataLayout.setVisibility(View.VISIBLE);
         avi.hide();
     }
 

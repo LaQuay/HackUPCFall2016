@@ -163,6 +163,8 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/scroll_flights"
+        android:paddingTop="0dp"
         android:layout_below="@+id/fragment_main_settings_layout_cardview"
         android:layout_marginTop="10dp">
 
@@ -177,8 +179,19 @@
         android:id="@+id/fragment_main_loading_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/fragment_main_settings_layout_cardview">
-
+        android:layout_marginTop="10dp"
+        android:layout_alignTop="@+id/scroll_flights">
+        <com.wang.avi.AVLoadingIndicatorView
+            android:id="@+id/avi"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="50dp"
+            style="@style/AVLoadingIndicatorView"
+            android:visibility="visible"
+            app:indicatorColor="#98e2ec"
+            app:indicatorName="BallClipRotatePulseIndicator"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -186,8 +199,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
-        android:layout_below="@+id/fragment_main_settings_layout_cardview">
-        >
+        android:layout_alignTop="@+id/scroll_flights"
+        android:layout_marginTop="10dp"
+        android:visibility="invisible">
 
         <TextView
             android:layout_width="match_parent"
@@ -211,16 +225,5 @@
             android:text="There's no flights matching your preferences."
             android:layout_centerHorizontal="true"
             />
-        <com.wang.avi.AVLoadingIndicatorView
-            android:id="@+id/avi"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_marginTop="50dp"
-            style="@style/AVLoadingIndicatorView"
-            android:visibility="visible"
-            app:indicatorColor="#98e2ec"
-            app:indicatorName="BallClipRotatePulseIndicator"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true" />
     </RelativeLayout>
 </RelativeLayout>
