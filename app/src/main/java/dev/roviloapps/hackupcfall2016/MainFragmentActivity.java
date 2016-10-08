@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -33,6 +32,7 @@ import dev.roviloapps.hackupcfall2016.utility.MathUtils;
 public class MainFragmentActivity extends Fragment implements ForecastController.ForecastResolvedCallback, OnMapReadyCallback, LocationController.OnNewLocationCallback {
     private static final String TAG = MainFragmentActivity.class.getSimpleName();
     private static final int DEFAULT_ZOOM = 14;
+    private static final int DEFAULT_NO_LOCATION_ZOOM = 10;
     private View rootView;
     private AutoCompleteTextView autoCompleteOriginAirport;
     private GoogleMap mMap;
@@ -88,7 +88,6 @@ public class MainFragmentActivity extends Fragment implements ForecastController
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 Airport airportSelected = (Airport) arg0.getAdapter().getItem(arg2);
-                Toast.makeText(getActivity(), airportSelected.getCode() + "-" + airportSelected.getName(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -97,7 +96,6 @@ public class MainFragmentActivity extends Fragment implements ForecastController
 
     private void setUpElements() {
         autoCompleteOriginAirport = (AutoCompleteTextView) rootView.findViewById(R.id.content_main_origin_autocomplete);
-
         mapView = (MapView) rootView.findViewById(R.id.fragment_main_map_google);
     }
 
@@ -122,7 +120,7 @@ public class MainFragmentActivity extends Fragment implements ForecastController
         mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
             public void onMapLoaded() {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(CAT, 6));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(CAT, DEFAULT_NO_LOCATION_ZOOM));
             }
         });
 
