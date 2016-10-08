@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,9 +30,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import dev.roviloapps.hackupcfall2016.controllers.AirportController;
@@ -78,10 +81,6 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     private ArrayList<FlightQuote> filteredFlightQuoteArray;
     private boolean isCurrentPositionActivated;
     private boolean isSettingsActivated;
-
-    private int weatherCondition = Forecast.WEATHER_CLEAR;
-    private int temperatureScale = -1;//Forecast.TEMP_HIGH;
-    private double temperature = 20;
 
     public static MainFragmentActivity newInstance() {
         return new MainFragmentActivity();
@@ -336,12 +335,29 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             TextView locationView = (TextView) flightItemView.findViewById(R.id.flight_item_destination_text);
             TextView airportView = (TextView) flightItemView.findViewById(R.id.flight_item_airport_text);
             TextView dateView = (TextView) flightItemView.findViewById(R.id.flight_item_date_text);
+            TextView temperatureView = (TextView) flightItemView.findViewById(R.id.flight_item_temperature_text);
+            ImageView weatherView = (ImageView) flightItemView.findViewById(R.id.flight_item_weather_image);
             TextView priceView = (TextView) flightItemView.findViewById(R.id.flight_item_price_text);
 
             locationView.setText(flightQuote.getInboundLeg().getDestination().getCity());
             airportView.setText(flightQuote.getInboundLeg().getDestination().getName());
 
-            dateView.setText(DateFormat.format("dd/MM/yyyy", flightQuote.getInboundLeg().getDate()).toString());
+            int weatherCondition = flightQuote.getInboundLeg().getWeatherConditionDestination();
+            int imageIcon = R.drawable.sun_rays_small;
+            if (weatherCondition == Forecast.WEATHER_RAINY)
+                imageIcon = R.drawable.cloud_dark_lightning_rain;
+            else if (weatherCondition == Forecast.WEATHER_CLOUDS) imageIcon = R.drawable.cloud;
+            weatherView.setImageResource(imageIcon);
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE dd", Locale.US);
+            dateView.setText(dateFormat.format(flightQuote.getInboundLeg().getDate()));
+
+            DecimalFormat numberFormat = new DecimalFormat("#.0");
+            DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols();
+            decimalFormatSymbols.setDecimalSeparator('.');
+            numberFormat.setDecimalFormatSymbols(decimalFormatSymbols);
+            temperatureView.setText(numberFormat.format(flightQuote.getInboundLeg().getTemperatureDestination()) + " ºC");
+
             priceView.setText(flightQuote.getMinPrice() + " €");
 
             flightsHolderLayout.addView(flightItemView);

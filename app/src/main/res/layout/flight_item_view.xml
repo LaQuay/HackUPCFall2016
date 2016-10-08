@@ -21,34 +21,40 @@
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="2"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/flight_item_destination_text"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_marginStart="5dp"
                     android:layout_marginTop="0dp"
+                    android:layout_weight="1"
                     android:background="@android:color/transparent"
                     android:completionThreshold="1"
                     android:ellipsize="end"
                     android:fontFamily="sans-serif-light"
+                    android:gravity="center"
                     android:maxLines="1"
                     android:text="Barcelona, Spain"
-                    android:textSize="16sp" />
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/flight_item_airport_text"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+
                     android:layout_marginStart="5dp"
                     android:layout_marginTop="0dp"
+                    android:layout_weight="1"
                     android:background="@android:color/transparent"
                     android:completionThreshold="1"
                     android:ellipsize="end"
                     android:fontFamily="sans-serif-light"
+                    android:gravity="center"
                     android:maxLines="1"
                     android:text="Aeroport del Prat"
                     android:textSize="16sp"
@@ -57,23 +63,42 @@
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/flight_item_date_text"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginTop="0dp"
-                    android:background="@android:color/transparent"
-                    android:completionThreshold="1"
-                    android:ellipsize="end"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:fontFamily="sans-serif-light"
-                    android:maxLines="1"
-                    android:text="16/09/2016"
+                    android:gravity="center"
+                    android:text="Sun 17"
                     android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/flight_item_temperature_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-light"
+                    android:gravity="center"
+                    android:text="13 ºC"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/flight_item_weather_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/cloud" />
             </LinearLayout>
 
             <LinearLayout
@@ -95,7 +120,7 @@
                     android:gravity="center"
                     android:maxLines="1"
                     android:text="31E"
-                    android:textSize="18sp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
