@@ -40,15 +40,6 @@ public class ForecastController {
 
     public void forecastRequest(double lat, double lon, final ForecastResolvedCallback forecastResolvedCallback) {
         Uri.Builder builder = new Uri.Builder();
-        //builder.scheme("http")
-        //        .authority("api.openweathermap.org")
-        //        .appendPath("data")
-        //        .appendPath("2.5")
-        //        .appendPath("forecast")
-        //        .appendQueryParameter("lat", Double.toString(lat))
-        //        .appendQueryParameter("lon", Double.toString(lon))
-        //        .appendQueryParameter("appid", OPENWEATHER_KEY)
-        //        .fragment("section-name");
         builder.scheme("http")
                 .authority("api.openweathermap.org")
                 .appendPath("data")

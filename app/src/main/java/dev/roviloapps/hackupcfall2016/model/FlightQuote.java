@@ -1,23 +1,25 @@
 package dev.roviloapps.hackupcfall2016.model;
 
+import android.support.annotation.NonNull;
+
 public class FlightQuote implements Comparable<FlightQuote> {
-    private double minPrice;
+    private int minPrice;
     private boolean direct;
     private Flight inboundLeg;
     private Flight outboundLeg;
 
-    public FlightQuote(double minPrice, boolean direct, Flight inboundLeg, Flight outboundLeg) {
+    public FlightQuote(int minPrice, boolean direct, Flight inboundLeg, Flight outboundLeg) {
         this.minPrice = minPrice;
         this.direct = direct;
         this.inboundLeg = inboundLeg;
         this.outboundLeg = outboundLeg;
     }
 
-    public double getMinPrice() {
+    public int getMinPrice() {
         return minPrice;
     }
 
-    public void setMinPrice(double minPrice) {
+    public void setMinPrice(int minPrice) {
         this.minPrice = minPrice;
     }
 
@@ -46,9 +48,9 @@ public class FlightQuote implements Comparable<FlightQuote> {
     }
 
     @Override
-    public int compareTo(FlightQuote o) {
-        if (minPrice < o.getMinPrice()) return -1;
-        else if (minPrice == o.getMinPrice()) return 0;
+    public int compareTo(@NonNull FlightQuote fq) {
+        if (minPrice < fq.getMinPrice()) return -1;
+        else if (minPrice == fq.getMinPrice()) return 0;
         return 1;
     }
 }

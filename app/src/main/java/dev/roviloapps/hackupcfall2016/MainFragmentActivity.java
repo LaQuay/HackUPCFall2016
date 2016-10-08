@@ -3,8 +3,10 @@ package dev.roviloapps.hackupcfall2016;
 import android.app.Activity;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +15,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -43,6 +47,9 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     private static final String TAG = MainFragmentActivity.class.getSimpleName();
     private static final int DEFAULT_ZOOM = 13;
     private static final int DEFAULT_NO_LOCATION_ZOOM = 10;
+    private final FlightsController.FlightsRequestResolvedCallback flightsRequestResolvedCallback = this;
+    private final ForecastController.ForecastResolvedCallback forecastResolvedCallback = this;
+    private LayoutInflater inflater;
     private Location userLocation;
     private View rootView;
     private AutoCompleteTextView autoCompleteOriginAirport;
@@ -52,15 +59,14 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             new LatLng(40.3, 0.2),
             new LatLng(42.5, 3.4));
     private CardView currentPositionCardView;
-
+    private LinearLayout flightsHolderLayout;
     private FlightsController flightsController;
     private ForecastController forecastController;
-    private final FlightsController.FlightsRequestResolvedCallback flightsRequestResolvedCallback = this;
-    private final ForecastController.ForecastResolvedCallback forecastResolvedCallback = this;
-    private int MAX_FLIGHTS = 1;
+    private int MAX_FLIGHTS = 3;
     private int actForecastFlightRequestPos = -1;
     private ArrayList<FlightQuote> flightQuoteArray;
     private ArrayList<FlightQuote> filteredFlightQuoteArray;
+    private boolean isCurrentPositionActivated;
 
     public static MainFragmentActivity newInstance() {
         return new MainFragmentActivity();
@@ -85,12 +91,14 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         super.onCreate(savedInstanceState);
 
         rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        this.inflater = inflater;
 
         setUpElements();
         setUpListeners();
 
         flightsController = new FlightsController(getActivity());
         forecastController = new ForecastController(getActivity());
+        isCurrentPositionActivated = false;
 
         mapView.onCreate(savedInstanceState);
         mapView.onResume();
@@ -113,7 +121,6 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 Airport airportSelected = (Airport) arg0.getAdapter().getItem(arg2);
                 autoCompleteOriginAirport.setHint(airportSelected.getCode() + " - " + airportSelected.getName() + ", " + airportSelected.getCountry());
-                //Toast.makeText(getActivity(), airportSelected.getCode() + "-" + airportSelected.getName(), Toast.LENGTH_SHORT).show();
 
                 flightsController.flightsRequest(airportSelected.getCode(), "anywhere", "anytime", "anytime", flightsRequestResolvedCallback);
 
@@ -146,6 +153,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         autoCompleteOriginAirport = (AutoCompleteTextView) rootView.findViewById(R.id.content_main_origin_autocomplete);
         mapView = (MapView) rootView.findViewById(R.id.fragment_main_map_google);
 
+        flightsHolderLayout = (LinearLayout) rootView.findViewById(R.id.fragment_main_container_flights);
+
         currentPositionCardView = (CardView) rootView.findViewById(R.id.fragment_main_current_position_cardview);
     }
 
@@ -153,16 +162,22 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         currentPositionCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Airport airport = checkNearestAirport(userLocation);
-                selectAirport(airport);
+                if (isCurrentPositionActivated) {
+                    Airport airport = checkNearestAirport(userLocation);
+                    selectAirport(airport);
 
-                autoCompleteOriginAirport.setHint(airport.getCode() + " - " + airport.getName() + ", " + airport.getCountry());
+                    autoCompleteOriginAirport.setHint(airport.getCode() + " - " + airport.getName() + ", " + airport.getCountry());
+                    flightsController.flightsRequest(airport.getCode(), "anywhere", "anytime", "anytime", flightsRequestResolvedCallback);
+                } else {
+                    Snackbar.make(v, "It's not possible to do a request, user location not available", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
             }
         });
     }
 
     @Override
-    public void onflightsRequestResolved(ArrayList<FlightQuote> flightQuoteArray) {
+    public void onFlightsRequestResolved(ArrayList<FlightQuote> flightQuoteArray) {
         Log.e(TAG, "Flight request in MainFragment :D");
 
         this.flightQuoteArray = filterFlights16Days(flightQuoteArray);
@@ -173,8 +188,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         if (this.flightQuoteArray.size() > 0) {
             actForecastFlightRequestPos = 0;
             callNextForecastRequest();
-        }
-        else {
+        } else {
             Toast.makeText(getActivity(), "No flight found", Toast.LENGTH_SHORT).show();
         }
     }
@@ -198,19 +212,37 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         }
 
         actForecastFlightRequestPos++;
-        if (filteredFlightQuoteArray.size() < MAX_FLIGHTS && actForecastFlightRequestPos < flightQuoteArray.size()) callNextForecastRequest();
-        else {
+        if (filteredFlightQuoteArray.size() < MAX_FLIGHTS && actForecastFlightRequestPos < flightQuoteArray.size()) {
+            callNextForecastRequest();
+        } else {
             if (filteredFlightQuoteArray.size() == 0) {
                 Toast.makeText(getActivity(), "No flight found", Toast.LENGTH_SHORT).show();
             }
 
-            for (int i = 0; i < filteredFlightQuoteArray.size(); ++i) {
-                FlightQuote flightQuote = filteredFlightQuoteArray.get(i);
-                Toast.makeText(getActivity(), "Price: " + flightQuote.getMinPrice() +
-                        " from " + flightQuote.getInboundLeg().getOrigin().getCode() +
-                        " to " + flightQuote.getInboundLeg().getDestination().getCode(), Toast.LENGTH_SHORT).show();
+            addFlightsToLayout();
+        }
+    }
 
-            }
+    private void addFlightsToLayout() {
+        for (int i = 0; i < filteredFlightQuoteArray.size(); ++i) {
+            FlightQuote flightQuote = filteredFlightQuoteArray.get(i);
+            Toast.makeText(getActivity(), "Price: " + flightQuote.getMinPrice() +
+                    " from " + flightQuote.getInboundLeg().getOrigin().getCode() +
+                    " to " + flightQuote.getInboundLeg().getDestination().getCode(), Toast.LENGTH_SHORT).show();
+
+            View flightItemView = inflater.inflate(R.layout.flight_item_view, null);
+            TextView locationView = (TextView) flightItemView.findViewById(R.id.flight_item_destination_text);
+            TextView airportView = (TextView) flightItemView.findViewById(R.id.flight_item_airport_text);
+            TextView dateView = (TextView) flightItemView.findViewById(R.id.flight_item_date_text);
+            TextView priceView = (TextView) flightItemView.findViewById(R.id.flight_item_price_text);
+
+            locationView.setText(flightQuote.getInboundLeg().getDestination().getCity());
+            airportView.setText(flightQuote.getInboundLeg().getDestination().getName());
+
+            dateView.setText(DateFormat.format("dd/MM/YYYY", flightQuote.getInboundLeg().getDate()).toString());
+            priceView.setText(flightQuote.getMinPrice() + " €");
+
+            flightsHolderLayout.addView(flightItemView);
         }
     }
 
@@ -275,6 +307,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             if (airport != null) {
                 addMarkerAirport(new LatLng(airport.getLatitude(), airport.getLongitude()));
             }
+            isCurrentPositionActivated = true;
         }
     }
 

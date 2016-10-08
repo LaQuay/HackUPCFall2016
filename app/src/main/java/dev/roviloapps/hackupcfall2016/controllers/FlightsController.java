@@ -1,7 +1,6 @@
 package dev.roviloapps.hackupcfall2016.controllers;
 
 import android.content.Context;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -19,10 +18,8 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import dev.roviloapps.hackupcfall2016.model.Airport;
@@ -32,9 +29,8 @@ import dev.roviloapps.hackupcfall2016.model.FlightQuote;
 
 public class FlightsController {
     private final String TAG = ForecastController.class.getSimpleName();
-    private String SKYSCANNER_KEY = "prtl6749387986743898559646983194";
-
     private final Context context;
+    private String SKYSCANNER_KEY = "prtl6749387986743898559646983194";
 
     public FlightsController(Context context) {
         this.context = context;
@@ -86,7 +82,7 @@ public class FlightsController {
                             e.printStackTrace();
                         }
 
-                        flightsRequestResolvedCallback.onflightsRequestResolved(quotes);
+                        flightsRequestResolvedCallback.onFlightsRequestResolved(quotes);
                         //Toast.makeText(context, response.toString(), Toast.LENGTH_SHORT).show();
                     }
                 },
@@ -145,11 +141,6 @@ public class FlightsController {
         throw new Exception("asda");
     }
 
-
-    public interface FlightsRequestResolvedCallback {
-        void onflightsRequestResolved(ArrayList<FlightQuote> flightQuotesArray);
-    }
-
     private int binarySortPricePosition(ArrayList<FlightQuote> flightQuotes, FlightQuote flightQuote) {
         int ind = Collections.binarySearch(flightQuotes, flightQuote);
 
@@ -159,5 +150,9 @@ public class FlightsController {
         //Log.e(TAG, ind + " " + flightQuote.getMinPrice());
 
         return ind;
+    }
+
+    public interface FlightsRequestResolvedCallback {
+        void onFlightsRequestResolved(ArrayList<FlightQuote> flightQuotesArray);
     }
 }

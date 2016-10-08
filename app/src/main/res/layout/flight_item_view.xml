@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        card_view:cardCornerRadius="2dp"
+        card_view:contentPadding="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/flight_item_destination_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="0dp"
+                    android:background="@android:color/transparent"
+                    android:completionThreshold="1"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-light"
+                    android:maxLines="1"
+                    android:text="Barcelona, Spain"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/flight_item_airport_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="0dp"
+                    android:background="@android:color/transparent"
+                    android:completionThreshold="1"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-light"
+                    android:maxLines="1"
+                    android:text="Aeroport del Prat"
+                    android:textSize="16sp"
+                    android:textStyle="italic" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/flight_item_date_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="0dp"
+                    android:background="@android:color/transparent"
+                    android:completionThreshold="1"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-light"
+                    android:maxLines="1"
+                    android:text="16/09/2016"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/flight_item_price_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="0dp"
+                    android:background="@android:color/transparent"
+                    android:completionThreshold="1"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-light"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:text="31E"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+</LinearLayout>
