@@ -246,6 +246,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
                 SharedPreferencesManager.setBooleanValue(getContext(),
                         SharedPreferencesManager.CHECKBOX_SUN_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX,
                         sunCheckbox.isChecked());
+
+                filterFlightsWeather();
             }
         });
         rainCheckbox.setOnClickListener(new View.OnClickListener() {
@@ -254,6 +256,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
                 SharedPreferencesManager.setBooleanValue(getContext(),
                         SharedPreferencesManager.CHECKBOX_RAIN_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX,
                         rainCheckbox.isChecked());
+
+                filterFlightsWeather();
             }
         });
         snowCheckbox.setOnClickListener(new View.OnClickListener() {
@@ -262,6 +266,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
                 SharedPreferencesManager.setBooleanValue(getContext(),
                         SharedPreferencesManager.CHECKBOX_SNOW_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX,
                         snowCheckbox.isChecked());
+
+                filterFlightsWeather();
             }
         });
         hotCheckbox.setOnClickListener(new View.OnClickListener() {
@@ -270,6 +276,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
                 SharedPreferencesManager.setBooleanValue(getContext(),
                         SharedPreferencesManager.CHECKBOX_HOT_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX,
                         hotCheckbox.isChecked());
+
+                filterFlightsWeather();
             }
         });
         coldCheckbox.setOnClickListener(new View.OnClickListener() {
@@ -278,6 +286,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
                 SharedPreferencesManager.setBooleanValue(getContext(),
                         SharedPreferencesManager.CHECKBOX_COLD_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX,
                         coldCheckbox.isChecked());
+
+                filterFlightsWeather();
             }
         });
     }
@@ -292,24 +302,16 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
 
     @Override
     public void onFlightsRequestResolved(ArrayList<FlightQuote> flightQuoteArray) {
-        Log.e(TAG, "Flight request in MainFragment :D");
+        Log.e(TAG, "Flight request");
 
         this.flightQuoteArray = filterFlights16Days(flightQuoteArray);
-        this.filteredFlightQuoteArray = new ArrayList<>();
 
-        Log.e(TAG, "Num SkyScanner flights: " + flightQuoteArray.size() + " Filtered: " + this.flightQuoteArray.size());
-
-        if (this.flightQuoteArray.size() > 0) {
-            actForecastFlightRequestPos = 0;
-            callNextForecastRequest();
-        } else {
-            Toast.makeText(getActivity(), "No flight found", Toast.LENGTH_SHORT).show();
-        }
+        filterFlightsWeather();
     }
 
     @Override
     public void onForecastResolved(ArrayList<Forecast> forecastArray) {
-        Log.e(TAG, "Forecast on MainActivity :D");
+        //Log.e(TAG, "Forecast request");
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
         String flightDateString = dateFormat.format(flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().getDate());
@@ -415,6 +417,19 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
 
         mMap.getUiSettings().setAllGesturesEnabled(true);
         mMap.getUiSettings().setMapToolbarEnabled(false);
+    }
+
+    private void filterFlightsWeather() {
+        this.filteredFlightQuoteArray = new ArrayList<>();
+
+        Log.e(TAG, "Num SkyScanner flights: " + flightQuoteArray.size() + " Filtered: " + this.flightQuoteArray.size());
+
+        if (this.flightQuoteArray.size() > 0) {
+            actForecastFlightRequestPos = 0;
+            callNextForecastRequest();
+        } else {
+            Toast.makeText(getActivity(), "No flight found", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void callNextForecastRequest() {
