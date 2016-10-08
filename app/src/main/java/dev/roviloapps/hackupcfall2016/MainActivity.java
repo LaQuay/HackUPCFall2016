@@ -1,9 +1,15 @@
 package dev.roviloapps.hackupcfall2016;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -16,7 +22,19 @@ import dev.roviloapps.hackupcfall2016.controllers.ForecastController;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final int PERMISSION_REQUEST_CODE_LOCATION = 1;
+    Handler handler = new Handler();
     private FloatingActionButton fab;
+    private boolean isDialogFinished;
+    Runnable runnableLocation = new Runnable() {
+        public void run() {
+            if (isDialogFinished) {
+                openFragment();
+            } else {
+                handler.postDelayed(this, 250);
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,11 +46,14 @@ public class MainActivity extends AppCompatActivity {
         setUpElements();
         setUpListeners();
 
+        isDialogFinished = false;
+
         if (savedInstanceState == null) {
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.container, MainFragmentActivity.newInstance());
-            ft.addToBackStack(null);
-            ft.commit();
+            if (checkLocationServiceAvailable()) {
+                openFragment();
+            } else {
+                handler.postDelayed(runnableLocation, 500);
+            }
         }
     }
 
@@ -52,6 +73,37 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+    }
+
+    public void openFragment() {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.container, MainFragmentActivity.newInstance());
+        ft.addToBackStack(null);
+        ft.commit();
+    }
+
+    public boolean checkLocationServiceAvailable() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE_LOCATION);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_CODE_LOCATION: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission was granted, yay!
+                } else {
+                    // Permission denied, boo!
+                    Toast.makeText(this, "Permision denied to Location :(", Toast.LENGTH_SHORT).show();
+                }
+                isDialogFinished = true;
+            }
+        }
     }
 
     @Override

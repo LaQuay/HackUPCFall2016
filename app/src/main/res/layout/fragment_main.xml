@@ -28,13 +28,14 @@
         android:layout_toStartOf="@+id/cardView2"
         android:layout_width="match_parent"
         android:focusable="true"
-        android:focusableInTouchMode="true" >
+        android:focusableInTouchMode="true">
             <AutoCompleteTextView
                 android:id="@+id/content_main_origin_autocomplete"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="0dp"
                 android:layout_weight="3"
+                android:layout_marginStart="5dp"
                 android:completionThreshold="1"
                 android:ellipsize="end"
                 android:fontFamily="sans-serif-light"
