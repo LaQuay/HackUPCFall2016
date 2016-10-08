@@ -1,5 +1,6 @@
 package dev.roviloapps.hackupcfall2016;
 
+import android.app.Activity;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -7,6 +8,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -88,10 +91,19 @@ public class MainFragmentActivity extends Fragment implements ForecastController
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 Airport airportSelected = (Airport) arg0.getAdapter().getItem(arg2);
+                autoCompleteOriginAirport.setHint(airportSelected.getCode() + "-" + airportSelected.getName());
+                autoCompleteOriginAirport.setText("");
+                hideKeyboard(rootView);
+                autoCompleteOriginAirport.clearFocus();
             }
         });
 
         return rootView;
+    }
+
+    public void hideKeyboard(View view) {
+        InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     private void setUpElements() {
