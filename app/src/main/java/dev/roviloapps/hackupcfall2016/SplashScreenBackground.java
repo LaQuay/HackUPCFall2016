@@ -15,10 +15,6 @@ import java.util.ArrayList;
 import dev.roviloapps.hackupcfall2016.controllers.AirportController;
 import dev.roviloapps.hackupcfall2016.model.Airport;
 
-/**
- * Created by LaQuay on 08/10/2016.
- */
-
 public class SplashScreenBackground extends AsyncTask<Void, Void, Void> {
     private static final String TAG = SplashScreenBackground.class.getSimpleName();
     private final LoadingTaskFinishedListener finishedListener;

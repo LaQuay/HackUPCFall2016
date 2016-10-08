@@ -2,6 +2,7 @@ package dev.roviloapps.hackupcfall2016;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +14,11 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import dev.roviloapps.hackupcfall2016.controllers.AirportController;
+import dev.roviloapps.hackupcfall2016.controllers.ForecastController;
 import dev.roviloapps.hackupcfall2016.model.Airport;
+import dev.roviloapps.hackupcfall2016.model.Forecast;
 
-public class MainFragmentActivity extends Fragment {
+public class MainFragmentActivity extends Fragment implements ForecastController.ForecastResolvedCallback {
     private static final String TAG = MainFragmentActivity.class.getSimpleName();
     private View rootView;
     private AutoCompleteTextView autoCompleteOriginAirport;
@@ -45,6 +48,9 @@ public class MainFragmentActivity extends Fragment {
             }
         });
 
+        //ForecastController forecastController = new ForecastController(getActivity());
+        //forecastController.forecastRequest(35, 139, this);
+
         return rootView;
     }
 
@@ -54,5 +60,15 @@ public class MainFragmentActivity extends Fragment {
 
     private void setUpListeners() {
 
+    }
+
+    @Override
+    public void onForecastResolved(ArrayList<Forecast> forecastArray) {
+        Log.e(TAG, "Forecast on MainActivity :D");
+        Log.e(TAG, forecastArray.toString());
+
+        for (int i = 0; i < forecastArray.size(); ++i) {
+            Log.e(TAG, forecastArray.get(i).getDate().toString());
+        }
     }
 }
