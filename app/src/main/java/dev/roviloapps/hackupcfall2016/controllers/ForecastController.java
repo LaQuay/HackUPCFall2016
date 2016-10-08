@@ -2,7 +2,6 @@ package dev.roviloapps.hackupcfall2016.controllers;
 
 import android.content.Context;
 import android.net.Uri;
-import android.text.format.DateFormat;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -18,19 +17,25 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.TimeZone;
 
 import dev.roviloapps.hackupcfall2016.model.Forecast;
 
 public class ForecastController {
 
     private final String TAG = ForecastController.class.getSimpleName();
-    private String OPENWEATHER_KEY = "2ee176e182eecc4608f89e707774e5b7";
-
     private final Context context;
+    private String OPENWEATHER_KEY = "2ee176e182eecc4608f89e707774e5b7";
 
     public ForecastController(Context context) {
         this.context = context;
+    }
+
+    public static Date unixTimeStampToDate(long unixSeconds, SimpleDateFormat format) throws ParseException {
+        Date date = new Date(unixSeconds * 1000L);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String formattedDate = sdf.format(date);
+
+        return (format.parse(formattedDate));
     }
 
     public void forecastRequest(double lat, double lon, final ForecastResolvedCallback forecastResolvedCallback) {
@@ -111,7 +116,6 @@ public class ForecastController {
 
                 forecastArray.add(forecast);
             }
-
             return forecastArray;
 
         } catch (JSONException e) {
@@ -154,7 +158,6 @@ public class ForecastController {
             }
 
             return forecastArray;
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -164,13 +167,5 @@ public class ForecastController {
 
     public interface ForecastResolvedCallback {
         void onForecastResolved(ArrayList<Forecast> forecastArray);
-    }
-
-    public static Date unixTimeStampToDate(long unixSeconds, SimpleDateFormat format) throws ParseException {
-        Date date = new Date(unixSeconds*1000L);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String formattedDate = sdf.format(date);
-
-        return (format.parse(formattedDate));
     }
 }

@@ -1,5 +1,6 @@
 package dev.roviloapps.hackupcfall2016;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -18,16 +19,19 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 
 import dev.roviloapps.hackupcfall2016.controllers.AirportController;
 import dev.roviloapps.hackupcfall2016.controllers.ForecastController;
+import dev.roviloapps.hackupcfall2016.controllers.LocationController;
 import dev.roviloapps.hackupcfall2016.model.Airport;
 import dev.roviloapps.hackupcfall2016.model.Forecast;
 
-public class MainFragmentActivity extends Fragment implements ForecastController.ForecastResolvedCallback, OnMapReadyCallback {
+public class MainFragmentActivity extends Fragment implements ForecastController.ForecastResolvedCallback, OnMapReadyCallback, LocationController.OnNewLocationCallback {
     private static final String TAG = MainFragmentActivity.class.getSimpleName();
+    private static final int DEFAULT_ZOOM = 16;
     private View rootView;
     private AutoCompleteTextView autoCompleteOriginAirport;
     private GoogleMap mMap;
@@ -38,6 +42,20 @@ public class MainFragmentActivity extends Fragment implements ForecastController
 
     public static MainFragmentActivity newInstance() {
         return new MainFragmentActivity();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        LocationController.getInstance(getActivity()).startLocation(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        LocationController.getInstance(getActivity()).stopLocation();
     }
 
     @Override
@@ -61,7 +79,7 @@ public class MainFragmentActivity extends Fragment implements ForecastController
         mapView.getMapAsync(this);
 
         ArrayList<Airport> airportArrayList = AirportController.getInstance(getActivity()).getAirports();
-        Log.e(TAG, airportArrayList.size() + "");
+        Log.e(TAG, "AIRPORTS: " + airportArrayList.size());
         ArrayAdapter<Airport> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line, airportArrayList);
         autoCompleteOriginAirport.setAdapter(adapter);
 
@@ -104,7 +122,6 @@ public class MainFragmentActivity extends Fragment implements ForecastController
             @Override
             public void onMapLoaded() {
                 mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(CAT, 6));
-
             }
         });
 
@@ -116,5 +133,18 @@ public class MainFragmentActivity extends Fragment implements ForecastController
         });
 
         mMap.getUiSettings().setAllGesturesEnabled(false);
+    }
+
+    @Override
+    public void onNewLocation(Location location) {
+        if (location != null) {
+            Log.e(TAG, "New location: " + location.getLatitude() + ", " + location.getLongitude());
+
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            mMap.addMarker(new MarkerOptions()
+                    .position(latLng));
+
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
+        }
     }
 }
