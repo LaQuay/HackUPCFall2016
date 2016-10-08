@@ -40,17 +40,20 @@ public class SplashScreenBackground extends AsyncTask<Void, Void, Void> {
             for (int i = 0; i < jsonArray.length(); ++i) {
                 JSONObject airport = jsonArray.getJSONObject(i);
 
-                String code = airport.getString("code");
-                double latitude = airport.getDouble("lat");
-                double longitude = airport.getDouble("lon");
-                String name = airport.getString("name");
-                String city = airport.getString("city");
-                String country = airport.getString("country");
-                airportArrayList.add(new Airport(code, latitude, longitude, name, city, country));
+                airportArrayList.add(
+                        new Airport(
+                                airport.getString("code"),
+                                airport.getDouble("lat"),
+                                airport.getDouble("lon"),
+                                airport.getString("name"),
+                                airport.getString("city"),
+                                airport.getString("country")));
             }
             Log.e(TAG, "READING END AIRPORT-JSON");
             AirportController.getInstance(context).setAirports(airportArrayList);
-        } catch (JSONException e) {
+
+            Thread.sleep(500);
+        } catch (JSONException | InterruptedException e) {
             e.printStackTrace();
         }
     }
