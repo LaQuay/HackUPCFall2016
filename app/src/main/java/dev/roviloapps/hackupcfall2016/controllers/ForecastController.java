@@ -40,15 +40,6 @@ public class ForecastController {
 
     public void forecastRequest(double lat, double lon, final ForecastResolvedCallback forecastResolvedCallback) {
         Uri.Builder builder = new Uri.Builder();
-        //builder.scheme("http")
-        //        .authority("api.openweathermap.org")
-        //        .appendPath("data")
-        //        .appendPath("2.5")
-        //        .appendPath("forecast")
-        //        .appendQueryParameter("lat", Double.toString(lat))
-        //        .appendQueryParameter("lon", Double.toString(lon))
-        //        .appendQueryParameter("appid", OPENWEATHER_KEY)
-        //        .fragment("section-name");
         builder.scheme("http")
                 .authority("api.openweathermap.org")
                 .appendPath("data")
@@ -111,53 +102,15 @@ public class ForecastController {
                 forecast.setTemperature(Double.parseDouble(forecastTemp.getString("eve")));
                 forecast.setTemperatureMin(Double.parseDouble(forecastTemp.getString("min")));
                 forecast.setTemperatureMax(Double.parseDouble(forecastTemp.getString("max")));
-
                 forecast.setTemperatureScale();
+
+                JSONObject weather = forecastObject.getJSONArray("weather").getJSONObject(0);
+                forecast.setWeatherCondition(weather.getString("main"));
 
                 forecastArray.add(forecast);
             }
             return forecastArray;
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return forecastArray;
-    }
-
-    private ArrayList<Forecast> parseForecastJSON5Day(JSONObject forecastJSONObject) {
-        Log.e(TAG, "Forecast on ForecastController");
-
-        ArrayList<Forecast> forecastArray = new ArrayList<Forecast>();
-
-        try {
-            JSONArray weatherArray = forecastJSONObject.getJSONArray("list");
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            SimpleDateFormat formatHour = new SimpleDateFormat("HH");
-
-            for (int i = 0; i < weatherArray.length(); i++) {
-                JSONObject forecastObject = weatherArray.getJSONObject(i);
-
-                Forecast forecast = new Forecast();
-                try {
-                    Date date = format.parse(forecastObject.getString("dt_txt"));
-                    if (!formatHour.format(date).equals("12")) continue;
-                    forecast.setDate(date);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-
-                JSONObject forecastMain = forecastObject.getJSONObject("main");
-                forecast.setTemperature(Double.parseDouble(forecastMain.getString("temp")));
-                forecast.setTemperatureMin(Double.parseDouble(forecastMain.getString("temp_min")));
-                forecast.setTemperatureMax(Double.parseDouble(forecastMain.getString("temp_max")));
-
-                forecast.setTemperatureScale();
-
-                forecastArray.add(forecast);
-            }
-
-            return forecastArray;
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -163,11 +163,14 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         String flightDateString = dateFormat.format(flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().getDate());
 
         for (int i = 0; i < forecastArray.size(); ++i) {
-            String forecastDateString = dateFormat.format(forecastArray.get(i).getDate());
+            Forecast forecast = forecastArray.get(i);
+            String forecastDateString = dateFormat.format(forecast.getDate());
             if (flightDateString.equals(forecastDateString)) {
                 // forecast for flight day
-                if (flightSatisfyFilters(forecastArray.get(i)))
+                if (flightSatisfyFilters(forecastArray.get(i))) {
+                    flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().setWeatherConditionDestination(forecast.getWeatherCondition());
                     filteredFlightQuoteArray.add(flightQuoteArray.get(actForecastFlightRequestPos));
+                }
 
                 break;
             }

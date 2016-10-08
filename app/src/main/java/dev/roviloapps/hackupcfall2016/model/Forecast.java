@@ -13,6 +13,11 @@ public class Forecast {
     public static int TEMP_MEDIUM = 1;
     public static int TEMP_LOW = 2;
 
+    private int weatherCondition;
+    public static int WEATHER_CLOUDS = 0;
+    public static int WEATHER_RAINY = 1;
+    public static int WEAtHER_CLEAR = 2;
+
     public Forecast() {
     }
 
@@ -58,5 +63,15 @@ public class Forecast {
         else if (temperature < 15) scale = TEMP_LOW;
 
         this.temperatureScale = scale;
+    }
+
+    public int getWeatherCondition() {
+        return weatherCondition;
+    }
+
+    public void setWeatherCondition(String weather) {
+        weatherCondition = WEAtHER_CLEAR;
+        if (weather.equals("Rain")) weatherCondition = WEATHER_RAINY;
+        else if (weather.equals("Clouds")) weatherCondition = WEATHER_CLOUDS;
     }
 }

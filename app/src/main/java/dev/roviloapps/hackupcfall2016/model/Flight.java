@@ -8,6 +8,8 @@ public class Flight {
     private Airport origin;
     private Airport destination;
     private Date date;
+    private int weatherConditionOrigin;
+    private int weatherConditionDestination;
 
     public Flight(ArrayList<String> carriers, Airport origin, Airport destination, Date date) {
         this.carriers = carriers;
@@ -46,5 +48,22 @@ public class Flight {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public int getWeatherConditionOrigin() {
+        return weatherConditionOrigin;
+    }
+
+
+    public void setWeatherConditionOrigin(int weatherConditionOrigin) {
+        this.weatherConditionOrigin = weatherConditionOrigin;
+    }
+
+    public int getWeatherConditionDestination() {
+        return weatherConditionDestination;
+    }
+
+    public void setWeatherConditionDestination(int weatherConditionDestination) {
+        this.weatherConditionDestination = weatherConditionDestination;
     }
 }
