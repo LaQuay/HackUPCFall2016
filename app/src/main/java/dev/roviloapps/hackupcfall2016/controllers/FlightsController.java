@@ -124,7 +124,8 @@ public class FlightsController {
         Airport destination = AirportController.getInstance(this.context).getAirport(iataDestination);
 
 
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        //SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         Date date = format.parse(leg.getString("DepartureDate"));
 
         return new Flight(carriers_, origin, destination, date);

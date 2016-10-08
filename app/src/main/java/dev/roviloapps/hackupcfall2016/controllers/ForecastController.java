@@ -86,7 +86,8 @@ public class ForecastController {
 
         try {
             JSONArray weatherArray = forecastJSONObject.getJSONArray("list");
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            //SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
             for (int i = 0; i < weatherArray.length(); i++) {
                 JSONObject forecastObject = weatherArray.getJSONObject(i);
