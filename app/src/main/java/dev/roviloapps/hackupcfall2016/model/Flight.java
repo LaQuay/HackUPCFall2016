@@ -8,8 +8,9 @@ public class Flight {
     private Airport origin;
     private Airport destination;
     private Date date;
-    private int weatherConditionOrigin;
     private int weatherConditionDestination;
+    private double temperatureScaleDestination;
+    private double temperatureDestination;
 
     public Flight(ArrayList<String> carriers, Airport origin, Airport destination, Date date) {
         this.carriers = carriers;
@@ -50,20 +51,27 @@ public class Flight {
         this.date = date;
     }
 
-    public int getWeatherConditionOrigin() {
-        return weatherConditionOrigin;
-    }
-
-
-    public void setWeatherConditionOrigin(int weatherConditionOrigin) {
-        this.weatherConditionOrigin = weatherConditionOrigin;
-    }
-
     public int getWeatherConditionDestination() {
         return weatherConditionDestination;
     }
 
     public void setWeatherConditionDestination(int weatherConditionDestination) {
         this.weatherConditionDestination = weatherConditionDestination;
+    }
+
+    public double getTemperatureScaleDestination() {
+        return temperatureScaleDestination;
+    }
+
+    public void setTemperatureScaleDestination(double temperatureScaleDestination) {
+        this.temperatureScaleDestination = temperatureScaleDestination;
+    }
+
+    public double getTemperatureDestination() {
+        return temperatureDestination;
+    }
+
+    public void setTemperatureDestination(double temperatureDestination) {
+        this.temperatureDestination = temperatureDestination;
     }
 }
