@@ -189,6 +189,28 @@
         android:layout_below="@+id/fragment_main_settings_layout_cardview">
         >
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="44sp"
+            android:layout_marginTop="50dp"
+            android:id="@+id/sadface_text"
+            android:text=":("
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:layout_marginTop="10dp"
+            android:layout_below="@+id/sadface_text"
+            android:text="There's no flights matching your preferences."
+            android:layout_centerHorizontal="true"
+            />
         <com.wang.avi.AVLoadingIndicatorView
             android:id="@+id/avi"
             android:layout_width="80dp"
