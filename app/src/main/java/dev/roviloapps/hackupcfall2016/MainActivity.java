@@ -9,8 +9,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import dev.roviloapps.hackupcfall2016.controllers.ForecastController;
-
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private FloatingActionButton fab;
@@ -25,9 +23,9 @@ public class MainActivity extends AppCompatActivity {
         setUpElements();
         setUpListeners();
 
-        if (savedInstanceState != null) {
+        if (savedInstanceState == null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.content_main, MainFragmentActivity.newInstance());
+            ft.replace(R.id.container, MainFragmentActivity.newInstance());
             ft.addToBackStack(null);
             ft.commit();
         }
