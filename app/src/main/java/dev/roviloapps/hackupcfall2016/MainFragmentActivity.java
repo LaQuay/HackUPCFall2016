@@ -31,12 +31,13 @@ public class MainFragmentActivity extends Fragment implements ForecastController
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        rootView = inflater.inflate(R.layout.content_main_fragment, container, false);
+        rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         setUpElements();
         setUpListeners();
 
         ArrayList<Airport> airportArrayList = AirportController.getInstance(getActivity()).getAirports();
+        Log.e(TAG, airportArrayList.size() + "");
         ArrayAdapter<Airport> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line, airportArrayList);
         autoCompleteOriginAirport.setAdapter(adapter);
 
