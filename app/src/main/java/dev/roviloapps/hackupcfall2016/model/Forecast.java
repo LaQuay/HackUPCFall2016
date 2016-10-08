@@ -3,20 +3,18 @@ package dev.roviloapps.hackupcfall2016.model;
 import java.util.Date;
 
 public class Forecast {
+    public static int TEMP_HIGH = 0;
+    public static int TEMP_MEDIUM = 1;
+    public static int TEMP_LOW = 2;
+    public static int WEATHER_CLOUDS = 0;
+    public static int WEATHER_RAINY = 1;
+    public static int WEATHER_CLEAR = 2;
     private Date date;
     private double temperature;
     private double temperatureMin;
     private double temperatureMax;
-
     private int temperatureScale;
-    public static int TEMP_HIGH = 0;
-    public static int TEMP_MEDIUM = 1;
-    public static int TEMP_LOW = 2;
-
     private int weatherCondition;
-    public static int WEATHER_CLOUDS = 0;
-    public static int WEATHER_RAINY = 1;
-    public static int WEAtHER_CLEAR = 2;
 
     public Forecast() {
     }
@@ -58,9 +56,8 @@ public class Forecast {
     }
 
     public void setTemperatureScale() {
-        int scale = TEMP_MEDIUM;
-        if (temperature > 27) scale = TEMP_HIGH;
-        else if (temperature < 15) scale = TEMP_LOW;
+        int scale = TEMP_LOW;
+        if (temperature > 24) scale = TEMP_HIGH;
 
         this.temperatureScale = scale;
     }
@@ -70,7 +67,7 @@ public class Forecast {
     }
 
     public void setWeatherCondition(String weather) {
-        weatherCondition = WEAtHER_CLEAR;
+        weatherCondition = WEATHER_CLEAR;
         if (weather.equals("Rain")) weatherCondition = WEATHER_RAINY;
         else if (weather.equals("Clouds")) weatherCondition = WEATHER_CLOUDS;
     }

@@ -2,7 +2,6 @@ package dev.roviloapps.hackupcfall2016;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.app.Activity;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -13,7 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -46,6 +44,7 @@ import dev.roviloapps.hackupcfall2016.model.FlightQuote;
 import dev.roviloapps.hackupcfall2016.model.Forecast;
 import dev.roviloapps.hackupcfall2016.utility.MathUtils;
 import dev.roviloapps.hackupcfall2016.utility.SharedPreferencesManager;
+import dev.roviloapps.hackupcfall2016.utility.Utility;
 
 public class MainFragmentActivity extends Fragment implements FlightsController.FlightsRequestResolvedCallback, ForecastController.ForecastResolvedCallback, OnMapReadyCallback, LocationController.OnNewLocationCallback {
     private static final String TAG = MainFragmentActivity.class.getSimpleName();
@@ -80,7 +79,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     private boolean isCurrentPositionActivated;
     private boolean isSettingsActivated;
 
-    private int weatherCondition = Forecast.WEAtHER_CLEAR;
+    private int weatherCondition = Forecast.WEATHER_CLEAR;
     private int temperatureScale = -1;//Forecast.TEMP_HIGH;
     private double temperature = 20;
 
@@ -144,7 +143,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
                 flightsController.flightsRequest(airportSelected.getCode(), "anywhere", "anytime", "anytime", flightsRequestResolvedCallback);
 
                 autoCompleteOriginAirport.setText("");
-                hideKeyboard(rootView);
+                Utility.hideKeyboard(getContext(), rootView);
                 autoCompleteOriginAirport.clearFocus();
 
                 selectAirport(airportSelected);
@@ -161,11 +160,6 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         });
 
         return rootView;
-    }
-
-    public void hideKeyboard(View view) {
-        InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     private void setUpElements() {
@@ -396,9 +390,26 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     }
 
     private boolean flightSatisfyFilters(Forecast forecast) {
-        if (temperatureScale != -1 && forecast.getTemperatureScale() != temperatureScale)
+        boolean isSunChecked = SharedPreferencesManager.getBooleanValue(getContext(), SharedPreferencesManager.CHECKBOX_SUN_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX, true);
+        boolean isRainChecked = SharedPreferencesManager.getBooleanValue(getContext(), SharedPreferencesManager.CHECKBOX_RAIN_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX, true);
+        boolean isSnowChecked = SharedPreferencesManager.getBooleanValue(getContext(), SharedPreferencesManager.CHECKBOX_SNOW_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX, true);
+        boolean isHotChecked = SharedPreferencesManager.getBooleanValue(getContext(), SharedPreferencesManager.CHECKBOX_HOT_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX, true);
+        boolean isColdChecked = SharedPreferencesManager.getBooleanValue(getContext(), SharedPreferencesManager.CHECKBOX_COLD_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX, true);
+
+        if (!isSunChecked && forecast.getWeatherCondition() == Forecast.WEATHER_CLEAR) {
             return false;
-        return !(weatherCondition != -1 && forecast.getWeatherCondition() != weatherCondition);
+        }
+        if (!isRainChecked && forecast.getWeatherCondition() == Forecast.WEATHER_RAINY) {
+            return false;
+        }
+        //TODO Change CLOUDS -> SNOW
+        if (!isSnowChecked && forecast.getWeatherCondition() == Forecast.WEATHER_CLOUDS) {
+            return false;
+        }
+        if (!isHotChecked && forecast.getTemperatureScale() == Forecast.TEMP_HIGH) {
+            return false;
+        }
+        return !(!isColdChecked && forecast.getTemperatureScale() == Forecast.TEMP_LOW);
     }
 
     @Override
