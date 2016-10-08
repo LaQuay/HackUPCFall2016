@@ -34,6 +34,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.wang.avi.AVLoadingIndicatorView;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -91,6 +92,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     private Marker destinationMarker;
     private Polyline tripLine;
     private CardView cvSelected;
+
+    private AVLoadingIndicatorView avi;
 
     private int weatherCondition = Forecast.WEATHER_CLEAR;
     private int temperatureScale = -1;//Forecast.TEMP_HIGH;
@@ -152,6 +155,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 Airport airportSelected = (Airport) arg0.getAdapter().getItem(arg2);
 
+                avi.show();
+
                 autoCompleteOriginAirport.setText("");
                 Utility.hideKeyboard(getContext(), rootView);
                 autoCompleteOriginAirport.clearFocus();
@@ -187,6 +192,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         snowCheckbox = (CheckBox) rootView.findViewById(R.id.fragment_main_snow_checkbox);
         hotCheckbox = (CheckBox) rootView.findViewById(R.id.fragment_main_hot_checkbox);
         coldCheckbox = (CheckBox) rootView.findViewById(R.id.fragment_main_cold_checkbox);
+
+        avi = (AVLoadingIndicatorView) rootView.findViewById(R.id.avi);
     }
 
     private void setUpListeners() {
@@ -196,6 +203,11 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
                 if (isCurrentPositionActivated) {
                     Airport airport = checkNearestAirport(userLocation);
                     selectAirport(airport);
+
+                    autoCompleteOriginAirport.setHint(airport.getCode() + " - " + airport.getName() + ", " + airport.getCountry());
+
+                    avi.show();
+                    flightsController.flightsRequest(airport.getCode(), "anywhere", "anytime", "anytime", flightsRequestResolvedCallback);
                 } else {
                     Snackbar.make(v, "It's not possible to do a request, user location not available", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
@@ -295,6 +307,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             actForecastFlightRequestPos = 0;
             callNextForecastRequest();
         } else {
+            avi.hide();
             Toast.makeText(getActivity(), "No flight found", Toast.LENGTH_SHORT).show();
         }
     }
@@ -384,6 +397,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
 
             flightsHolderLayout.addView(flightItemView);
         }
+
+        avi.hide();
     }
 
     @Override
