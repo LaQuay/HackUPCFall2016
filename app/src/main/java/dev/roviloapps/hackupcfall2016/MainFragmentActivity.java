@@ -336,19 +336,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
                 break;
             }
         }
-
-        actForecastFlightRequestPos++;
-        //Log.e(TAG, filteredFlightQuoteArray.size() + " " + MAX_FLIGHTS);
-        //Log.e(TAG, actForecastFlightRequestPos + " " + flightQuoteArray.size());
-        if (filteredFlightQuoteArray.size() < MAX_FLIGHTS && actForecastFlightRequestPos < flightQuoteArray.size()) {
-            checkForecastFlight();
-        } else {
-            if (filteredFlightQuoteArray.size() == 0) {
-                Toast.makeText(getActivity(), "No flight found", Toast.LENGTH_SHORT).show();
-            }
-
-            addFlightsToLayout();
-        }
+        checkNextForecastFlight();
     }
 
     public void checkForecastFlight() {
@@ -359,20 +347,23 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             if (flightSatisfyFilters(flight.getWeatherConditionDestination(), flight.getTemperatureScaleDestination())) {
                 filteredFlightQuoteArray.add(flightQuoteArray.get(actForecastFlightRequestPos));
             }
-
-            actForecastFlightRequestPos++;
-            if (filteredFlightQuoteArray.size() < MAX_FLIGHTS && actForecastFlightRequestPos < flightQuoteArray.size()) {
-                checkForecastFlight();
-            } else {
-                if (filteredFlightQuoteArray.size() == 0) {
-                    Toast.makeText(getActivity(), "No flight found", Toast.LENGTH_SHORT).show();
-                }
-
-                addFlightsToLayout();
-            }
+            checkNextForecastFlight();
         }
         else {
             callNextForecastRequest();
+        }
+    }
+
+    public void checkNextForecastFlight() {
+        actForecastFlightRequestPos++;
+        if (filteredFlightQuoteArray.size() < MAX_FLIGHTS && actForecastFlightRequestPos < flightQuoteArray.size()) {
+            checkForecastFlight();
+        } else {
+            if (filteredFlightQuoteArray.size() == 0) {
+                Toast.makeText(getActivity(), "No flight found", Toast.LENGTH_SHORT).show();
+            }
+
+            addFlightsToLayout();
         }
     }
 
