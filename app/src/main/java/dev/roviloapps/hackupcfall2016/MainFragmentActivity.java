@@ -31,9 +31,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import dev.roviloapps.hackupcfall2016.controllers.AirportController;
@@ -241,7 +244,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             View flightItemView = inflater.inflate(R.layout.flight_item_view, null);
             TextView locationView = (TextView) flightItemView.findViewById(R.id.flight_item_destination_text);
             TextView airportView = (TextView) flightItemView.findViewById(R.id.flight_item_airport_text);
-            //TextView dateView = (TextView) flightItemView.findViewById(R.id.flight_item_date_text);
+            TextView dateView = (TextView) flightItemView.findViewById(R.id.flight_item_date_text);
+            TextView temperatureView = (TextView) flightItemView.findViewById(R.id.flight_item_temperature_text);
             ImageView weatherView = (ImageView) flightItemView.findViewById(R.id.flight_item_weather_image);
             TextView priceView = (TextView) flightItemView.findViewById(R.id.flight_item_price_text);
 
@@ -254,7 +258,15 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             else if (weatherCondition == Forecast.WEATHER_CLOUDS) imageIcon = R.drawable.cloud;
             weatherView.setImageResource(imageIcon);
 
-            //dateView.setText(DateFormat.format("dd/MM/yyyy", flightQuote.getInboundLeg().getDate()).toString());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE dd", Locale.US);
+            dateView.setText(dateFormat.format(flightQuote.getInboundLeg().getDate()));
+
+            DecimalFormat numberFormat = new DecimalFormat("#.0");
+            DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols();
+            decimalFormatSymbols.setDecimalSeparator('.');
+            numberFormat.setDecimalFormatSymbols(decimalFormatSymbols);
+            temperatureView.setText(numberFormat.format(flightQuote.getInboundLeg().getTemperatureDestination()) + " ºC");
+
             priceView.setText(flightQuote.getMinPrice() + " €");
 
             flightsHolderLayout.addView(flightItemView);
