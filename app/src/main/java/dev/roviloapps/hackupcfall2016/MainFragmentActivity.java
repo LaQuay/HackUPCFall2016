@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,6 +41,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -208,7 +210,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
                     autoCompleteOriginAirport.setHint(airport.getCode() + " - " + airport.getName() + ", " + airport.getCountry());
 
                     avi.show();
-                    flightsController.flightsRequest(airport.getCode(), "anywhere", "anytime", "anytime", flightsRequestResolvedCallback);
+                    sendFlightRequest(airport.getCode());
+                    //flightsController.flightsRequest(airport.getCode(), "anywhere", "anytime", "anytime", flightsRequestResolvedCallback);
                 } else {
                     Snackbar.make(v, "It's not possible to do a request, user location not available", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
@@ -303,6 +306,23 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         snowCheckbox.setChecked(SharedPreferencesManager.getBooleanValue(getContext(), SharedPreferencesManager.CHECKBOX_SNOW_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX, true));
         hotCheckbox.setChecked(SharedPreferencesManager.getBooleanValue(getContext(), SharedPreferencesManager.CHECKBOX_HOT_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX, true));
         coldCheckbox.setChecked(SharedPreferencesManager.getBooleanValue(getContext(), SharedPreferencesManager.CHECKBOX_COLD_KEY + SharedPreferencesManager.CHECKBOX_SUFFIX, true));
+    }
+
+    public void sendFlightRequest(String airportCode) {
+        Log.e(TAG, airportCode);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, 16);
+
+        String today = dateFormat.format(new Date());
+        String day16 = dateFormat.format(cal.getTime());
+        Log.e(TAG, today + " " + day16);
+
+        today = "anytime";
+        day16 = "anytime";
+
+        flightsController.flightsRequest(airportCode, "anywhere", today, day16, flightsRequestResolvedCallback);
     }
 
     @Override
@@ -454,10 +474,13 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
 
         Date today = new Date();
         for (int i = 0; i < flightQuotes.size(); ++i) {
-            Date flightDate = flightQuotes.get(i).getInboundLeg().getDate();
-            long diff = flightDate.getTime() - today.getTime();
-            long numDays = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
-            if (numDays > 0 && numDays <= 16) filteredArray.add(flightQuotes.get(i));
+            Log.e(TAG, "Price: " + flightQuotes.get(i).getMinPrice() + " Date: " + flightQuotes.get(i).getInboundLeg().getDate());
+            if (flightQuotes.get(i).getInboundLeg() != null) {
+                Date flightDate = flightQuotes.get(i).getInboundLeg().getDate();
+                long diff = flightDate.getTime() - today.getTime();
+                long numDays = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+                if (numDays > 0 && numDays <= 16) filteredArray.add(flightQuotes.get(i));
+            }
         }
 
         return filteredArray;
@@ -525,7 +548,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         addMarkerSourceAirport(latLng);
         animateCamera(latLng);
         autoCompleteOriginAirport.setHint(airport.getCode() + " - " + airport.getName() + ", " + airport.getCountry());
-        flightsController.flightsRequest(airport.getCode(), "anywhere", "anytime", "anytime", flightsRequestResolvedCallback);
+
+        sendFlightRequest(airport.getCode());
     }
 
     private void addMarkerSourceAirport(LatLng latLng) {
