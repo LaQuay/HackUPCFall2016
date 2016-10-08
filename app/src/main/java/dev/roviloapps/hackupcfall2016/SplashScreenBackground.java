@@ -12,12 +12,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import dev.roviloapps.hackupcfall2016.controllers.FrontController;
+import dev.roviloapps.hackupcfall2016.controllers.AirportController;
 import dev.roviloapps.hackupcfall2016.model.Airport;
-
-/**
- * Created by LaQuay on 08/10/2016.
- */
 
 public class SplashScreenBackground extends AsyncTask<Void, Void, Void> {
     private static final String TAG = SplashScreenBackground.class.getSimpleName();
@@ -53,7 +49,7 @@ public class SplashScreenBackground extends AsyncTask<Void, Void, Void> {
                 airportArrayList.add(new Airport(code, latitude, longitude, name, city, country));
             }
             Log.e(TAG, "READING END AIRPORT-JSON");
-            FrontController.getInstance(context).setAirports(airportArrayList);
+            AirportController.getInstance(context).setAirports(airportArrayList);
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -1,9 +1,5 @@
 package dev.roviloapps.hackupcfall2016.model;
 
-/**
- * Created by LaQuay on 08/10/2016.
- */
-
 public class Airport {
     private String code;
     private double latitude;
@@ -67,5 +63,10 @@ public class Airport {
 
     public void setCountry(String country) {
         this.country = country;
+    }
+
+    @Override
+    public String toString() {
+        return code + " - " + name + ", " + city + ", " + country;
     }
 }
