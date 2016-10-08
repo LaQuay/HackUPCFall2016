@@ -4,11 +4,11 @@ import android.app.Activity;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -20,6 +20,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -40,8 +41,9 @@ import dev.roviloapps.hackupcfall2016.utility.MathUtils;
 
 public class MainFragmentActivity extends Fragment implements FlightsController.FlightsRequestResolvedCallback, ForecastController.ForecastResolvedCallback, OnMapReadyCallback, LocationController.OnNewLocationCallback {
     private static final String TAG = MainFragmentActivity.class.getSimpleName();
-    private static final int DEFAULT_ZOOM = 14;
+    private static final int DEFAULT_ZOOM = 13;
     private static final int DEFAULT_NO_LOCATION_ZOOM = 10;
+    private Location userLocation;
     private View rootView;
     private AutoCompleteTextView autoCompleteOriginAirport;
     private GoogleMap mMap;
@@ -49,6 +51,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     private LatLngBounds CAT = new LatLngBounds(
             new LatLng(40.3, 0.2),
             new LatLng(42.5, 3.4));
+    private CardView currentPositionCardView;
 
     private FlightsController flightsController;
     private ForecastController forecastController;
@@ -100,7 +103,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
 
         mapView.getMapAsync(this);
 
-        ArrayList<Airport> airportArrayList = AirportController.getInstance(getActivity()).getAirports();
+        final ArrayList<Airport> airportArrayList = AirportController.getInstance(getActivity()).getAirports();
         Log.e(TAG, "AIRPORTS: " + airportArrayList.size());
         ArrayAdapter<Airport> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line, airportArrayList);
         autoCompleteOriginAirport.setAdapter(adapter);
@@ -109,14 +112,25 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 Airport airportSelected = (Airport) arg0.getAdapter().getItem(arg2);
+                autoCompleteOriginAirport.setHint(airportSelected.getCode() + " - " + airportSelected.getName() + ", " + airportSelected.getCountry());
                 //Toast.makeText(getActivity(), airportSelected.getCode() + "-" + airportSelected.getName(), Toast.LENGTH_SHORT).show();
 
                 flightsController.flightsRequest(airportSelected.getCode(), "anywhere", "anytime", "anytime", flightsRequestResolvedCallback);
 
-                autoCompleteOriginAirport.setHint(airportSelected.getCode() + "-" + airportSelected.getName());
                 autoCompleteOriginAirport.setText("");
                 hideKeyboard(rootView);
                 autoCompleteOriginAirport.clearFocus();
+
+                selectAirport(airportSelected);
+            }
+        });
+
+        autoCompleteOriginAirport.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                if (hasFocus) {
+                    autoCompleteOriginAirport.showDropDown();
+                }
             }
         });
 
@@ -131,10 +145,20 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     private void setUpElements() {
         autoCompleteOriginAirport = (AutoCompleteTextView) rootView.findViewById(R.id.content_main_origin_autocomplete);
         mapView = (MapView) rootView.findViewById(R.id.fragment_main_map_google);
+
+        currentPositionCardView = (CardView) rootView.findViewById(R.id.fragment_main_current_position_cardview);
     }
 
     private void setUpListeners() {
+        currentPositionCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Airport airport = checkNearestAirport(userLocation);
+                selectAirport(airport);
 
+                autoCompleteOriginAirport.setHint(airport.getCode() + " - " + airport.getName() + ", " + airport.getCountry());
+            }
+        });
     }
 
     @Override
@@ -242,16 +266,18 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
 
     @Override
     public void onNewLocation(Location location) {
+        this.userLocation = location;
         if (location != null) {
             Log.e(TAG, "New location: " + location.getLatitude() + ", " + location.getLongitude());
 
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-            mMap.addMarker(new MarkerOptions()
-                    .position(latLng));
+            addMarkerUser(latLng);
+            animateCamera(latLng);
 
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
-
-            checkNearestAirport(location);
+            Airport airport = checkNearestAirport(location);
+            if (airport != null) {
+                addMarkerAirport(new LatLng(airport.getLatitude(), airport.getLongitude()));
+            }
         }
     }
 
@@ -259,16 +285,40 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         Airport airport = null;
         ArrayList<Airport> airportArrayList = AirportController.getInstance(getActivity()).getAirports();
 
-        double userLatitude = location.getLatitude();
-        double userLongitude = location.getLongitude();
-        double distAirport = Double.MAX_VALUE;
-        for (int i = 0; i < airportArrayList.size(); ++i) {
-            Airport currentAirport = airportArrayList.get(i);
-            if (distAirport > MathUtils.distanceBetweenTwoLocations(userLatitude, userLongitude, currentAirport.getLatitude(), currentAirport.getLongitude())) {
-                distAirport = MathUtils.distanceBetweenTwoLocations(userLatitude, userLongitude, currentAirport.getLatitude(), currentAirport.getLongitude());
-                airport = currentAirport;
+        if (location != null) {
+            double userLatitude = location.getLatitude();
+            double userLongitude = location.getLongitude();
+            double distAirport = Double.MAX_VALUE;
+            for (int i = 0; i < airportArrayList.size(); ++i) {
+                Airport currentAirport = airportArrayList.get(i);
+                if (distAirport > MathUtils.distanceBetweenTwoLocations(userLatitude, userLongitude, currentAirport.getLatitude(), currentAirport.getLongitude())) {
+                    distAirport = MathUtils.distanceBetweenTwoLocations(userLatitude, userLongitude, currentAirport.getLatitude(), currentAirport.getLongitude());
+                    airport = currentAirport;
+                }
             }
         }
         return airport;
+    }
+
+    private void selectAirport(Airport airport) {
+        LatLng latLng = new LatLng(airport.getLatitude(), airport.getLongitude());
+        addMarkerAirport(latLng);
+        animateCamera(latLng);
+    }
+
+    private void addMarkerUser(LatLng latLng) {
+        mMap.addMarker(new MarkerOptions()
+                .position(latLng)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.navigation_blue_icon)));
+    }
+
+    private void addMarkerAirport(LatLng latLng) {
+        mMap.addMarker(new MarkerOptions()
+                .position(latLng)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.common_full_open_on_phone)));
+    }
+
+    private void animateCamera(LatLng latLng) {
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
     }
 }

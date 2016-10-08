@@ -5,8 +5,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
@@ -14,17 +12,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
-
-import dev.roviloapps.hackupcfall2016.controllers.FlightsController;
-import dev.roviloapps.hackupcfall2016.controllers.ForecastController;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int PERMISSION_REQUEST_CODE_LOCATION = 1;
     Handler handler = new Handler();
-    private FloatingActionButton fab;
     private boolean isDialogFinished;
     Runnable runnableLocation = new Runnable() {
         public void run() {
@@ -35,6 +28,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
+    //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+    //.setAction("Action", null).show();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,21 +54,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setUpElements() {
-        fab = (FloatingActionButton) findViewById(R.id.fab);
     }
 
     private void setUpListeners() {
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ForecastController forecastController = new ForecastController(getApplicationContext());
-                FlightsController flightsController = new FlightsController(getApplicationContext());
-                //forecastController.forecastRequest("35","139");
-                //flightsController.flightsRequest("BCN","MAD","2017-02-11","2017-02-15",);
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
     }
 
     public void openFragment() {
