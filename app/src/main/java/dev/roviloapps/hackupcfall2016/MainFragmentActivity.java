@@ -3,6 +3,7 @@ package dev.roviloapps.hackupcfall2016;
 import android.app.Activity;
 import android.location.Location;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
@@ -15,6 +16,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -68,7 +70,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     private ArrayList<FlightQuote> filteredFlightQuoteArray;
     private boolean isCurrentPositionActivated;
 
-    private int weatherCondition = Forecast.WEAtHER_CLEAR;
+    private int weatherCondition = -1;//Forecast.WEAtHER_CLEAR;
     private int temperatureScale = -1;//Forecast.TEMP_HIGH;
     private double temperature = 20;
 
@@ -239,13 +241,20 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             View flightItemView = inflater.inflate(R.layout.flight_item_view, null);
             TextView locationView = (TextView) flightItemView.findViewById(R.id.flight_item_destination_text);
             TextView airportView = (TextView) flightItemView.findViewById(R.id.flight_item_airport_text);
-            TextView dateView = (TextView) flightItemView.findViewById(R.id.flight_item_date_text);
+            //TextView dateView = (TextView) flightItemView.findViewById(R.id.flight_item_date_text);
+            ImageView weatherView = (ImageView) flightItemView.findViewById(R.id.flight_item_weather_image);
             TextView priceView = (TextView) flightItemView.findViewById(R.id.flight_item_price_text);
 
             locationView.setText(flightQuote.getInboundLeg().getDestination().getCity());
             airportView.setText(flightQuote.getInboundLeg().getDestination().getName());
 
-            dateView.setText(DateFormat.format("dd/MM/yyyy", flightQuote.getInboundLeg().getDate()).toString());
+            int weatherCondition = flightQuote.getInboundLeg().getWeatherConditionDestination();
+            int imageIcon = R.drawable.sun_rays_small;
+            if (weatherCondition == Forecast.WEATHER_RAINY) imageIcon = R.drawable.cloud_dark_lightning_rain;
+            else if (weatherCondition == Forecast.WEATHER_CLOUDS) imageIcon = R.drawable.cloud;
+            weatherView.setImageResource(imageIcon);
+
+            //dateView.setText(DateFormat.format("dd/MM/yyyy", flightQuote.getInboundLeg().getDate()).toString());
             priceView.setText(flightQuote.getMinPrice() + " €");
 
             flightsHolderLayout.addView(flightItemView);

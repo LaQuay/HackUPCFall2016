@@ -61,7 +61,12 @@
                 android:layout_weight="2"
                 android:orientation="vertical">
 
-                <TextView
+                <ImageView
+                    android:id="@+id/flight_item_weather_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <!--TextView
                     android:id="@+id/flight_item_date_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -73,7 +78,7 @@
                     android:fontFamily="sans-serif-light"
                     android:maxLines="1"
                     android:text="16/09/2016"
-                    android:textSize="16sp" />
+                    android:textSize="16sp" /!-->
             </LinearLayout>
 
             <LinearLayout
