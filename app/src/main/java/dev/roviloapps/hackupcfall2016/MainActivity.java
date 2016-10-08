@@ -6,6 +6,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,9 +21,12 @@ import java.util.ArrayList;
 import dev.roviloapps.hackupcfall2016.controllers.AirportController;
 import dev.roviloapps.hackupcfall2016.controllers.ForecastController;
 import dev.roviloapps.hackupcfall2016.model.Airport;
+import dev.roviloapps.hackupcfall2016.model.Forecast;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ForecastController.Listener {
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    private ForecastController forecastController;
 
     private double LATITUDE = 35;
     private double LONGITUDE = 139;
@@ -34,11 +38,13 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        forecastController = new ForecastController(getApplicationContext());
+        forecastController.setListener(this);
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ForecastController forecastController = new ForecastController(getApplicationContext());
                 forecastController.forecastRequest(LATITUDE, LONGITUDE);
 
                 showSearchLayout();
@@ -108,5 +114,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void forecastListener(ArrayList<Forecast> forecastArray) {
+        Log.e(TAG, "Forecast on MainActivity :D");
+        Log.e(TAG, forecastArray.toString());
+
+        for (int i = 0; i < forecastArray.size(); ++i) {
+            Log.e(TAG, forecastArray.get(i).getDate().toString());
+        }
     }
 }

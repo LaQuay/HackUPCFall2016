@@ -30,6 +30,12 @@ public class ForecastController {
 
     private final Context context;
 
+    public interface Listener {
+        public void forecastListener(ArrayList<Forecast> forecastArray);
+    }
+
+    private Listener mListener;
+
     public ForecastController(Context context) {
         this.context = context;
     }
@@ -54,7 +60,8 @@ public class ForecastController {
 
                     @Override
                     public void onResponse(JSONObject response) {
-                        parseForecastJSON(response);
+                        ArrayList<Forecast> forecastArray = parseForecastJSON(response);
+                        mListener.forecastListener(forecastArray);
                     }
                 }, new Response.ErrorListener() {
 
@@ -68,7 +75,9 @@ public class ForecastController {
         VolleyController.getInstance(context).addToQueue(jsonObjectRequest);
     }
 
-    private void parseForecastJSON(JSONObject forecastJSONObject) {
+    private ArrayList<Forecast> parseForecastJSON(JSONObject forecastJSONObject) {
+        Log.e(TAG, "Forecast on ForecastController");
+
         ArrayList<Forecast> forecastArray = new ArrayList<Forecast>();
 
         try {
@@ -93,11 +102,19 @@ public class ForecastController {
                 forecast.setTemperatureMin(Double.parseDouble(forecastMain.getString("temp_min")));
                 forecast.setTemperatureMax(Double.parseDouble(forecastMain.getString("temp_max")));
 
-                Log.e(TAG, forecast.getDate().toString());
-
+                forecastArray.add(forecast);
             }
+
+            return forecastArray;
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        return forecastArray;
+    }
+
+    public void setListener(Listener listener) {
+        mListener = listener;
     }
 }
