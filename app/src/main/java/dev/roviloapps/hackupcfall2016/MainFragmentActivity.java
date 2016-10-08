@@ -73,9 +73,6 @@ public class MainFragmentActivity extends Fragment implements ForecastController
             }
         });
 
-        //ForecastController forecastController = new ForecastController(getActivity());
-        //forecastController.forecastRequest(35, 139, this);
-
         return rootView;
     }
 
@@ -95,7 +92,7 @@ public class MainFragmentActivity extends Fragment implements ForecastController
         Log.e(TAG, forecastArray.toString());
 
         for (int i = 0; i < forecastArray.size(); ++i) {
-            Log.e(TAG, forecastArray.get(i).getDate().toString());
+            Log.e(TAG, Double.toString(forecastArray.get(i).getTemperature()) + " " + Integer.toString(forecastArray.get(i).getTemperatureScale()));
         }
     }
 

@@ -2,6 +2,7 @@ package dev.roviloapps.hackupcfall2016.controllers;
 
 import android.content.Context;
 import android.net.Uri;
+import android.text.format.DateFormat;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -17,6 +18,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.TimeZone;
 
 import dev.roviloapps.hackupcfall2016.model.Forecast;
 
@@ -33,13 +35,25 @@ public class ForecastController {
 
     public void forecastRequest(double lat, double lon, final ForecastResolvedCallback forecastResolvedCallback) {
         Uri.Builder builder = new Uri.Builder();
+        //builder.scheme("http")
+        //        .authority("api.openweathermap.org")
+        //        .appendPath("data")
+        //        .appendPath("2.5")
+        //        .appendPath("forecast")
+        //        .appendQueryParameter("lat", Double.toString(lat))
+        //        .appendQueryParameter("lon", Double.toString(lon))
+        //        .appendQueryParameter("appid", OPENWEATHER_KEY)
+        //        .fragment("section-name");
         builder.scheme("http")
                 .authority("api.openweathermap.org")
                 .appendPath("data")
                 .appendPath("2.5")
                 .appendPath("forecast")
+                .appendPath("daily")
                 .appendQueryParameter("lat", Double.toString(lat))
                 .appendQueryParameter("lon", Double.toString(lon))
+                .appendQueryParameter("units", "metric")
+                .appendQueryParameter("cnt", "16")
                 .appendQueryParameter("appid", OPENWEATHER_KEY)
                 .fragment("section-name");
         String url = builder.build().toString();
@@ -50,7 +64,7 @@ public class ForecastController {
 
                     @Override
                     public void onResponse(JSONObject response) {
-                        ArrayList<Forecast> forecastArray = parseForecastJSON(response);
+                        ArrayList<Forecast> forecastArray = parseForecastJSON16Day(response);
                         forecastResolvedCallback.onForecastResolved(forecastArray);
                     }
                 }, new Response.ErrorListener() {
@@ -65,7 +79,49 @@ public class ForecastController {
         VolleyController.getInstance(context).addToQueue(jsonObjectRequest);
     }
 
-    private ArrayList<Forecast> parseForecastJSON(JSONObject forecastJSONObject) {
+    private ArrayList<Forecast> parseForecastJSON16Day(JSONObject forecastJSONObject) {
+        Log.e(TAG, "Forecast on ForecastController");
+
+        ArrayList<Forecast> forecastArray = new ArrayList<Forecast>();
+
+        try {
+            JSONArray weatherArray = forecastJSONObject.getJSONArray("list");
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            for (int i = 0; i < weatherArray.length(); i++) {
+                JSONObject forecastObject = weatherArray.getJSONObject(i);
+
+                Forecast forecast = new Forecast();
+
+                long unixSeconds = forecastObject.getLong("dt");
+                Date date = null;
+                try {
+                    date = unixTimeStampToDate(unixSeconds, format);
+                    forecast.setDate(date);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                JSONObject forecastTemp = forecastObject.getJSONObject("temp");
+                forecast.setTemperature(Double.parseDouble(forecastTemp.getString("eve")));
+                forecast.setTemperatureMin(Double.parseDouble(forecastTemp.getString("min")));
+                forecast.setTemperatureMax(Double.parseDouble(forecastTemp.getString("max")));
+
+                forecast.setTemperatureScale();
+
+                forecastArray.add(forecast);
+            }
+
+            return forecastArray;
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return forecastArray;
+    }
+
+    private ArrayList<Forecast> parseForecastJSON5Day(JSONObject forecastJSONObject) {
         Log.e(TAG, "Forecast on ForecastController");
 
         ArrayList<Forecast> forecastArray = new ArrayList<Forecast>();
@@ -92,6 +148,8 @@ public class ForecastController {
                 forecast.setTemperatureMin(Double.parseDouble(forecastMain.getString("temp_min")));
                 forecast.setTemperatureMax(Double.parseDouble(forecastMain.getString("temp_max")));
 
+                forecast.setTemperatureScale();
+
                 forecastArray.add(forecast);
             }
 
@@ -106,5 +164,13 @@ public class ForecastController {
 
     public interface ForecastResolvedCallback {
         void onForecastResolved(ArrayList<Forecast> forecastArray);
+    }
+
+    public static Date unixTimeStampToDate(long unixSeconds, SimpleDateFormat format) throws ParseException {
+        Date date = new Date(unixSeconds*1000L);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String formattedDate = sdf.format(date);
+
+        return (format.parse(formattedDate));
     }
 }
