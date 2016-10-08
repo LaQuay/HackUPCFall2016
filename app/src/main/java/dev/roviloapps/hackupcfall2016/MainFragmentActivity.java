@@ -2,6 +2,9 @@ package dev.roviloapps.hackupcfall2016;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.app.Activity;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -20,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -28,7 +32,10 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -51,7 +58,7 @@ import dev.roviloapps.hackupcfall2016.utility.Utility;
 
 public class MainFragmentActivity extends Fragment implements FlightsController.FlightsRequestResolvedCallback, ForecastController.ForecastResolvedCallback, OnMapReadyCallback, LocationController.OnNewLocationCallback {
     private static final String TAG = MainFragmentActivity.class.getSimpleName();
-    private static final int DEFAULT_ZOOM = 13;
+    private static final int DEFAULT_ZOOM = 11;
     private static final int DEFAULT_NO_LOCATION_ZOOM = 10;
     private static final int MAX_FLIGHTS = 10;
     private final FlightsController.FlightsRequestResolvedCallback flightsRequestResolvedCallback = this;
@@ -81,6 +88,15 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     private ArrayList<FlightQuote> filteredFlightQuoteArray;
     private boolean isCurrentPositionActivated;
     private boolean isSettingsActivated;
+
+    private Marker currentMarker;
+    private Marker destinationMarker;
+    private Polyline tripLine;
+    private CardView cvSelected;
+
+    private int weatherCondition = Forecast.WEATHER_CLEAR;
+    private int temperatureScale = -1;//Forecast.TEMP_HIGH;
+    private double temperature = 20;
 
     public static MainFragmentActivity newInstance() {
         return new MainFragmentActivity();
@@ -329,7 +345,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     private void addFlightsToLayout() {
         flightsHolderLayout.removeAllViews();
         for (int i = 0; i < filteredFlightQuoteArray.size(); ++i) {
-            FlightQuote flightQuote = filteredFlightQuoteArray.get(i);
+            final FlightQuote flightQuote = filteredFlightQuoteArray.get(i);
 
             View flightItemView = inflater.inflate(R.layout.flight_item_view, null);
             TextView locationView = (TextView) flightItemView.findViewById(R.id.flight_item_destination_text);
@@ -360,6 +376,21 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
 
             priceView.setText(flightQuote.getMinPrice() + " €");
 
+            flightItemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    LatLng latLng = new LatLng(flightQuote.getInboundLeg().getDestination().getLatitude(), flightQuote.getInboundLeg().getDestination().getLongitude());
+                    addMarkerDestinationAirport(latLng);
+
+                    CardView flightCardView = (CardView) v.findViewById(R.id.flight_item_card);
+                    if (cvSelected != null)
+                        cvSelected.setBackgroundColor(Color.WHITE);
+
+                    flightCardView.setBackgroundColor(Color.parseColor("#98e2ec"));
+                    cvSelected = flightCardView;
+                }
+            });
+
             flightsHolderLayout.addView(flightItemView);
         }
     }
@@ -371,7 +402,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
             public void onMapLoaded() {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(CAT, DEFAULT_NO_LOCATION_ZOOM));
+
             }
         });
 
@@ -382,7 +413,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             }
         });
 
-        mMap.getUiSettings().setAllGesturesEnabled(false);
+        mMap.getUiSettings().setAllGesturesEnabled(true);
+        mMap.getUiSettings().setMapToolbarEnabled(false);
     }
 
     private void callNextForecastRequest() {
@@ -434,13 +466,12 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         if (location != null) {
             Log.e(TAG, "New location: " + location.getLatitude() + ", " + location.getLongitude());
 
-            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-            addMarkerUser(latLng);
-            animateCamera(latLng);
+            //LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            //addMarkerUser(latLng);
 
             Airport airport = checkNearestAirport(location);
             if (airport != null) {
-                addMarkerAirport(new LatLng(airport.getLatitude(), airport.getLongitude()));
+                addMarkerSourceAirport(new LatLng(airport.getLatitude(), airport.getLongitude()));
             }
             isCurrentPositionActivated = true;
         }
@@ -467,7 +498,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
 
     private void selectAirport(Airport airport) {
         LatLng latLng = new LatLng(airport.getLatitude(), airport.getLongitude());
-        addMarkerAirport(latLng);
+        addMarkerSourceAirport(latLng);
         animateCamera(latLng);
     }
 
@@ -477,10 +508,46 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.map_user_marker)));
     }
 
-    private void addMarkerAirport(LatLng latLng) {
-        mMap.addMarker(new MarkerOptions()
+    private void addMarkerSourceAirport(LatLng latLng) {
+        if (currentMarker != null)
+            currentMarker.remove();
+        if (destinationMarker != null)
+            destinationMarker.remove();
+        if (tripLine != null)
+            tripLine.remove();
+
+        currentMarker = mMap.addMarker(new MarkerOptions()
                 .position(latLng)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.map_airport_marker)));
+
+        animateCamera(latLng);
+    }
+
+    private void addMarkerDestinationAirport(LatLng latLng) {
+        if (destinationMarker != null)
+            destinationMarker.remove();
+        if (tripLine != null)
+            tripLine.remove();
+
+        destinationMarker = mMap.addMarker(new MarkerOptions()
+                .position(latLng)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.map_airport_marker)));
+
+        tripLine = mMap.addPolyline(new PolylineOptions()
+                .add(currentMarker.getPosition(), destinationMarker.getPosition())
+                .width(10)
+                .color(Color.parseColor("#76c2af")));
+
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        builder.include(currentMarker.getPosition());
+        builder.include(destinationMarker.getPosition());
+
+        LatLngBounds bounds = builder.build();
+
+        int padding = 170; // offset from edges of the map in pixels
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+
+        mMap.animateCamera(cu);
     }
 
     private void animateCamera(LatLng latLng) {
