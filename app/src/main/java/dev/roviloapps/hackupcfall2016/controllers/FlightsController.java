@@ -15,6 +15,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,7 +36,7 @@ public class FlightsController {
         this.context = context;
     }
 
-    public void flightsRequest(String source, String destination, String inDate, String outDate) {
+    public void flightsRequest(String source, String destination, String inDate, String outDate, final FlightsRequestResolvedCallback flightsRequestResolvedCallback) {
 
         String URL = "http://partners.api.skyscanner.net/apiservices/browsequotes/v1.0/GB/GBP/en-GB/"
                 + source + "/"
@@ -59,8 +60,13 @@ public class FlightsController {
                                 {
                                     int minPrice = jquotes.getJSONObject(i).getInt("MinPrice");
                                     boolean direct = jquotes.getJSONObject(i).getBoolean("Direct");
-                                    Flight outboundLeg = legToFlight(jquotes.getJSONObject(i).getJSONObject("OutboundLeg"), response);
-                                    Flight inboundLeg = legToFlight(jquotes.getJSONObject(i).getJSONObject("InboundLeg"), response);
+
+                                    Flight outboundLeg = null;
+                                    if (jquotes.getJSONObject(i).has("OutboundLeg"))
+                                        outboundLeg = legToFlight(jquotes.getJSONObject(i).getJSONObject("OutboundLeg"), response);
+                                    Flight inboundLeg = null;
+                                    if (jquotes.getJSONObject(i).has("InboundLeg"))
+                                        inboundLeg = legToFlight(jquotes.getJSONObject(i).getJSONObject("InboundLeg"), response);
 
                                     quotes.add(new FlightQuote(minPrice,direct,outboundLeg,inboundLeg));
                                 }
@@ -73,7 +79,8 @@ public class FlightsController {
                             e.printStackTrace();
                         }
 
-                        Toast.makeText(context, response.toString(), Toast.LENGTH_SHORT).show();
+                        flightsRequestResolvedCallback.onflightsRequestResolved(quotes);
+                        //Toast.makeText(context, response.toString(), Toast.LENGTH_SHORT).show();
                     }
                 },
                 new Response.ErrorListener() {
@@ -104,13 +111,16 @@ public class FlightsController {
         for (int i = 0; i < carriers.length(); i++) {
             carriers_.add(findRowById(fullResponse.getJSONArray("Carriers"),"CarrierId", carriers.getInt(i)).getString("Name"));
         }
-        Airport origin;
         String iataOrigin = findRowById(fullResponse.getJSONArray("Places"),"PlaceId", leg.getInt("OriginId")).getString("IataCode");
-        Airport destination;
+        Airport origin = AirportController.getInstance(this.context).getAirport(iataOrigin);
         String iataDestination = findRowById(fullResponse.getJSONArray("Places"),"PlaceId", leg.getInt("DestinationId")).getString("IataCode");
-        Date date = new Date(/*leg.getString("DepartureDate").split("T")[0]*/);
+        Airport destination = AirportController.getInstance(this.context).getAirport(iataDestination);
 
-        return new Flight(carriers_, null, null, date);
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        Date date = format.parse(leg.getString("DepartureDate"));
+
+        return new Flight(carriers_, origin, destination, date);
     }
 
     private JSONObject findRowById (JSONArray object, String idName, int id) throws Exception {
@@ -125,5 +135,10 @@ public class FlightsController {
             }
         }
         throw new Exception("asda");
+    }
+
+
+    public interface FlightsRequestResolvedCallback {
+        void onflightsRequestResolved(ArrayList<FlightQuote> flightQuotesArray);
     }
 }

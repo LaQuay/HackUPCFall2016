@@ -2,6 +2,7 @@ package dev.roviloapps.hackupcfall2016;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -9,6 +10,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+
+import dev.roviloapps.hackupcfall2016.controllers.FlightsController;
+import dev.roviloapps.hackupcfall2016.controllers.ForecastController;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -42,8 +46,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 ForecastController forecastController = new ForecastController(getApplicationContext());
                 FlightsController flightsController = new FlightsController(getApplicationContext());
-                forecastController.forecastRequest("35","139");
-                flightsController.flightsRequest("BCN","MAD","2017-02-11","2017-02-15");
+                //forecastController.forecastRequest("35","139");
+                //flightsController.flightsRequest("BCN","MAD","2017-02-11","2017-02-15",);
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
