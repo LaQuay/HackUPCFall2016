@@ -20,7 +20,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -386,10 +385,6 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         if (filteredFlightQuoteArray.size() < MAX_FLIGHTS && actForecastFlightRequestPos < flightQuoteArray.size()) {
             checkForecastFlight();
         } else {
-            if (filteredFlightQuoteArray.size() == 0) {
-                Toast.makeText(getActivity(), "No flight found", Toast.LENGTH_SHORT).show();
-            }
-
             addFlightsToLayout();
         }
     }
