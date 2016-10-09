@@ -315,18 +315,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     }
 
     public void sendFlightRequest(String airportCode) {
-        Log.e(TAG, airportCode);
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, 1);
-        String today = dateFormat.format(cal.getTime());
-        cal.add(Calendar.DATE, 17);
-        String day16 = dateFormat.format(cal.getTime());
-        Log.e(TAG, today + " " + day16);
-
-        today = "anytime";
-        day16 = "anytime";
+        String today = "anytime";
+        String day16 = "anytime";
 
         flightsController.flightsRequest(airportCode, "anywhere", today, day16, flightsRequestResolvedCallback);
     }
@@ -342,10 +332,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
 
     @Override
     public void onForecastResolved(ArrayList<Forecast> forecastArray) {
-        //Log.e(TAG, "Forecast request");
-
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-        Log.e(TAG, actForecastFlightRequestPos + " ");
         String flightDateString = dateFormat.format(flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().getDate());
 
         for (int i = 0; i < forecastArray.size(); ++i) {

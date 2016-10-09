@@ -72,7 +72,6 @@ public class FlightsController {
 
                                     FlightQuote flightQuote = new FlightQuote(minPrice,direct,outboundLeg,inboundLeg);
                                     int sortPos = binarySortPricePosition(quotes, flightQuote);
-                                    //Log.e(TAG, "sortpos: " + sortPos);
                                     quotes.add(sortPos, flightQuote);
                                 }
                                 catch (Exception ex)
