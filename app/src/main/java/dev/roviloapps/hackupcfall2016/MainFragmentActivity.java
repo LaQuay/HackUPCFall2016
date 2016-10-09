@@ -308,9 +308,9 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
         Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, 16);
-
-        String today = dateFormat.format(new Date());
+        cal.add(Calendar.DATE, 1);
+        String today = dateFormat.format(cal.getTime());
+        cal.add(Calendar.DATE, 17);
         String day16 = dateFormat.format(cal.getTime());
         Log.e(TAG, today + " " + day16);
 
@@ -331,9 +331,10 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
 
     @Override
     public void onForecastResolved(ArrayList<Forecast> forecastArray) {
-        Log.e(TAG, "Forecast request");
+        //Log.e(TAG, "Forecast request");
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        Log.e(TAG, actForecastFlightRequestPos + " ");
         String flightDateString = dateFormat.format(flightQuoteArray.get(actForecastFlightRequestPos).getInboundLeg().getDate());
 
         for (int i = 0; i < forecastArray.size(); ++i) {
@@ -469,7 +470,6 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
 
         Date today = new Date();
         for (int i = 0; i < flightQuotes.size(); ++i) {
-            Log.e(TAG, "Price: " + flightQuotes.get(i).getMinPrice() + " Date: " + flightQuotes.get(i).getInboundLeg().getDate());
             if (flightQuotes.get(i).getInboundLeg() != null) {
                 Date flightDate = flightQuotes.get(i).getInboundLeg().getDate();
                 long diff = flightDate.getTime() - today.getTime();
