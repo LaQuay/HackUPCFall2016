@@ -19,6 +19,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -97,6 +98,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     private CardView cvSelected;
 
     private AVLoadingIndicatorView avi;
+    private RelativeLayout noDataLayout;
 
     public static MainFragmentActivity newInstance() {
         return new MainFragmentActivity();
@@ -152,9 +154,11 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         autoCompleteOriginAirport.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                avi.show();
                 Airport airportSelected = (Airport) arg0.getAdapter().getItem(arg2);
-
+                flightsHolderLayout.removeAllViews();
+                noDataLayout.setVisibility(View.INVISIBLE);
+                avi.show();
+                
                 autoCompleteOriginAirport.setText("");
                 Utility.hideKeyboard(getContext(), rootView);
                 autoCompleteOriginAirport.clearFocus();
@@ -192,6 +196,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         coldCheckbox = (CheckBox) rootView.findViewById(R.id.fragment_main_cold_checkbox);
 
         avi = (AVLoadingIndicatorView) rootView.findViewById(R.id.fragment_main_avi);
+        noDataLayout = (RelativeLayout) rootView.findViewById(R.id.fragment_main_no_data_layout);
     }
 
     private void setUpListeners() {
@@ -204,6 +209,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
 
                     autoCompleteOriginAirport.setHint(airport.getCode() + " - " + airport.getName() + ", " + airport.getCountry());
 
+                    noDataLayout.setVisibility(View.INVISIBLE);
+                    flightsHolderLayout.removeAllViews();
                     avi.show();
                     sendFlightRequest(airport.getCode());
                     //flightsController.flightsRequest(airport.getCode(), "anywhere", "anytime", "anytime", flightsRequestResolvedCallback);
@@ -392,6 +399,9 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             actForecastFlightRequestPos = 0;
             checkForecastFlight();
         } else {
+            avi.hide();
+            noDataLayout.setVisibility(View.VISIBLE);
+
             Toast.makeText(getActivity(), "No flight found", Toast.LENGTH_SHORT).show();
         }
     }
@@ -454,6 +464,10 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             flightsHolderLayout.addView(flightItemView);
         }
 
+        if (filteredFlightQuoteArray.size() > 0)
+            noDataLayout.setVisibility(View.INVISIBLE);
+        else
+            noDataLayout.setVisibility(View.VISIBLE);
         avi.hide();
     }
 

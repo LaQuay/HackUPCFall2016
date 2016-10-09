@@ -55,8 +55,6 @@
         android:layout_marginEnd="2dp"
         android:layout_marginStart="2dp"
         android:layout_toStartOf="@+id/fragment_main_settings_button_cardview"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
         card_view:cardCornerRadius="2dp"
         card_view:contentPadding="2dp">
 
@@ -167,6 +165,8 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/scroll_flights"
+        android:paddingTop="0dp"
         android:layout_below="@+id/fragment_main_settings_layout_cardview"
         android:layout_marginTop="10dp">
 
@@ -181,16 +181,7 @@
         android:id="@+id/fragment_main_loading_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/fragment_main_settings_layout_cardview">
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/fragment_main_no_data_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_below="@+id/fragment_main_settings_layout_cardview">
+        android:layout_alignTop="@+id/scroll_flights">
 
         <com.wang.avi.AVLoadingIndicatorView
             android:id="@+id/fragment_main_avi"
@@ -203,5 +194,37 @@
             android:visibility="visible"
             app:indicatorColor="#98e2ec"
             app:indicatorName="BallClipRotatePulseIndicator" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/fragment_main_no_data_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignTop="@+id/scroll_flights"
+        android:visibility="invisible">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="44sp"
+            android:layout_marginTop="50dp"
+            android:id="@+id/sadface_text"
+            android:text=":("
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:layout_marginTop="10dp"
+            android:layout_below="@+id/sadface_text"
+            android:text="There's no flights matching your preferences."
+            android:layout_centerHorizontal="true"
+            />
     </RelativeLayout>
 </RelativeLayout>
