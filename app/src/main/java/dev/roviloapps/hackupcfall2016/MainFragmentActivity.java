@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -99,6 +98,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
 
     private AVLoadingIndicatorView avi;
     private RelativeLayout noDataLayout;
+    private boolean isUpdating;
 
     public static MainFragmentActivity newInstance() {
         return new MainFragmentActivity();
@@ -154,16 +154,21 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         autoCompleteOriginAirport.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                Airport airportSelected = (Airport) arg0.getAdapter().getItem(arg2);
-                flightsHolderLayout.removeAllViews();
-                noDataLayout.setVisibility(View.INVISIBLE);
-                avi.show();
-                
-                autoCompleteOriginAirport.setText("");
-                Utility.hideKeyboard(getContext(), rootView);
-                autoCompleteOriginAirport.clearFocus();
+                if (!isUpdating) {
+                    Airport airportSelected = (Airport) arg0.getAdapter().getItem(arg2);
+                    flightsHolderLayout.removeAllViews();
+                    noDataLayout.setVisibility(View.INVISIBLE);
+                    showAVI(true);
 
-                selectAirport(airportSelected);
+                    autoCompleteOriginAirport.setText("");
+                    Utility.hideKeyboard(getContext(), rootView);
+                    autoCompleteOriginAirport.clearFocus();
+
+                    selectAirport(airportSelected);
+                } else {
+                    Snackbar.make(arg1, "Updating... Please wait", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
             }
         });
 
@@ -204,16 +209,19 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             @Override
             public void onClick(View v) {
                 if (isCurrentPositionActivated) {
-                    Airport airport = checkNearestAirport(userLocation);
-                    selectAirport(airport);
+                    if (!isUpdating) {
+                        Airport airport = checkNearestAirport(userLocation);
+                        selectAirport(airport);
 
-                    autoCompleteOriginAirport.setHint(airport.getCode() + " - " + airport.getName() + ", " + airport.getCountry());
+                        autoCompleteOriginAirport.setHint(airport.getCode() + " - " + airport.getName() + ", " + airport.getCountry());
 
-                    noDataLayout.setVisibility(View.INVISIBLE);
-                    flightsHolderLayout.removeAllViews();
-                    avi.show();
-                    sendFlightRequest(airport.getCode());
-                    //flightsController.flightsRequest(airport.getCode(), "anywhere", "anytime", "anytime", flightsRequestResolvedCallback);
+                        noDataLayout.setVisibility(View.INVISIBLE);
+                        flightsHolderLayout.removeAllViews();
+                        showAVI(true);
+                    } else {
+                        Snackbar.make(v, "Updating... Please wait", Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
+                    }
                 } else {
                     Snackbar.make(v, "It's not possible to do a request, user location not available", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
@@ -370,8 +378,7 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
                 filteredFlightQuoteArray.add(flightQuoteArray.get(actForecastFlightRequestPos));
             }
             checkNextForecastFlight();
-        }
-        else {
+        } else {
             callNextForecastRequest();
         }
     }
@@ -398,10 +405,8 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
             actForecastFlightRequestPos = 0;
             checkForecastFlight();
         } else {
-            avi.hide();
+            showAVI(false);
             noDataLayout.setVisibility(View.VISIBLE);
-
-            Toast.makeText(getActivity(), "No flight found", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -464,18 +469,20 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         }
 
         if (filteredFlightQuoteArray.size() > 0)
-            noDataLayout.setVisibility(View.INVISIBLE);
+            noDataLayout.setVisibility(View.GONE);
         else
             noDataLayout.setVisibility(View.VISIBLE);
-        avi.hide();
+
+        showAVI(false);
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-
-        mMap.getUiSettings().setAllGesturesEnabled(true);
-        mMap.getUiSettings().setMapToolbarEnabled(false);
+    private void showAVI(boolean status) {
+        if (status) {
+            avi.show();
+        } else {
+            avi.hide();
+        }
+        isUpdating = status;
     }
 
     private ArrayList<FlightQuote> filterFlights16Days(ArrayList<FlightQuote> flightQuotes) {
@@ -519,6 +526,14 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     }
 
     @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+
+        mMap.getUiSettings().setAllGesturesEnabled(true);
+        mMap.getUiSettings().setMapToolbarEnabled(false);
+    }
+
+    @Override
     public void onNewLocation(Location location) {
         this.userLocation = location;
         if (location != null) {
@@ -558,7 +573,9 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
         animateCamera(latLng);
         autoCompleteOriginAirport.setHint(airport.getCode() + " - " + airport.getName() + ", " + airport.getCountry());
 
+        //if (!isUpdating) {
         sendFlightRequest(airport.getCode());
+        //}
     }
 
     private void addMarkerSourceAirport(LatLng latLng) {
