@@ -1,6 +1,7 @@
 package dev.roviloapps.hackupcfall2016.controllers;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -43,6 +44,8 @@ public class FlightsController {
                 + destination + "/"
                 + inDate + "/"
                 + outDate + "?apiKey=" + SKYSCANNER_KEY;
+
+        Log.e(TAG, URL);
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(
                 Request.Method.GET,

@@ -55,8 +55,6 @@
         android:layout_marginEnd="2dp"
         android:layout_marginStart="2dp"
         android:layout_toStartOf="@+id/fragment_main_settings_button_cardview"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
         card_view:cardCornerRadius="2dp"
         card_view:contentPadding="2dp">
 
