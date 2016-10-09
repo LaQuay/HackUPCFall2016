@@ -18,13 +18,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import dev.roviloapps.hackupcfall2016.R;
 import dev.roviloapps.hackupcfall2016.model.Forecast;
 
 public class ForecastController {
-
     private final String TAG = ForecastController.class.getSimpleName();
     private final Context context;
-    private String OPENWEATHER_KEY = "2ee176e182eecc4608f89e707774e5b7";
 
     public ForecastController(Context context) {
         this.context = context;
@@ -50,7 +49,7 @@ public class ForecastController {
                 .appendQueryParameter("lon", Double.toString(lon))
                 .appendQueryParameter("units", "metric")
                 .appendQueryParameter("cnt", "16")
-                .appendQueryParameter("appid", OPENWEATHER_KEY)
+                .appendQueryParameter("appid", context.getString(R.string.openweather_key))
                 .fragment("section-name");
         String url = builder.build().toString();
 

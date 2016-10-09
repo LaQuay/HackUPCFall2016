@@ -23,15 +23,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import dev.roviloapps.hackupcfall2016.R;
 import dev.roviloapps.hackupcfall2016.model.Airport;
 import dev.roviloapps.hackupcfall2016.model.Flight;
 import dev.roviloapps.hackupcfall2016.model.FlightQuote;
 
-
 public class FlightsController {
     private final String TAG = ForecastController.class.getSimpleName();
     private final Context context;
-    private String SKYSCANNER_KEY = "prtl6749387986743898559646983194";
 
     public FlightsController(Context context) {
         this.context = context;
@@ -43,7 +42,7 @@ public class FlightsController {
                 + source + "/"
                 + destination + "/"
                 + inDate + "/"
-                + outDate + "?apiKey=" + SKYSCANNER_KEY;
+                + outDate + "?apiKey=" + context.getString(R.string.skyscanner_key);
 
         Log.e(TAG, URL);
 

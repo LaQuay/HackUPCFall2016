@@ -71,9 +71,6 @@ public class MainFragmentActivity extends Fragment implements FlightsController.
     private AutoCompleteTextView autoCompleteOriginAirport;
     private GoogleMap mMap;
     private MapView mapView;
-    private LatLngBounds CAT = new LatLngBounds(
-            new LatLng(40.3, 0.2),
-            new LatLng(42.5, 3.4));
     private CardView currentPositionCardView;
     private CardView settingsButtonCardView;
     private CardView settingsLayoutCardView;

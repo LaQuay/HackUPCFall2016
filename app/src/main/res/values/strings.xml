@@ -1,7 +1,9 @@
 <resources>
-    <string name="app_name">HackUPCFall2016</string>
+    <string name="app_name">Where I go?</string>
     <string name="action_about">About</string>
 
+    <string name="openweather_key">2ee176e182eecc4608f89e707774e5b7</string>
+    <string name="skyscanner_key">prtl6749387986743898559646983194</string>
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
         		AIzaSyDSb1EHFX98ZAoYpsSk8Wr3xPh3Y4rUTTU
     </string>
